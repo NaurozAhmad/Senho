@@ -1,16 +1,91 @@
 <!DOCTYPE html>
-<html>
+<!--[if lte IE 8 ]>
+<html class="ie" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!-->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<!--<![endif]-->
 <head>
-	<meta http-equiv="Access-Control-Allow-Origin" content="*"/>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-	<title>Senho</title>
-	<script src="node_modules/angular/angular.min.js"></script>
-	<script src="node_modules/angular-ui-router/release/angular-ui-router.min.js"></script>
-	<link rel="stylesheet" href="css/main.min.css" />
+    <meta charset="utf-8">
+
+    <title>Senho</title>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Meta data -->
+    <meta name="author" content="Senho IT Solutions">
+    <meta name="description" content="Add Description">
+    <meta name="keywords" content="senho, portfolio, design, development, app, UI, UX, web, mobile" />
+
+    <!-- Favicon, (keep icon in root folder) -->
+    <link rel="Shortcut Icon" href="img/senho/logo-icon.png" type="image/ico">
+
+    <!-- Open graph meta data, (Facebook) -->
+    <meta property="og:description" content="Add a description here">
+    <meta property="og:image" content="http://addsiteurlhere.com/preview_image.png">
+    <meta property="og:site_name" content="Add Site Name">
+    <meta property="og:title" content="Add Page Title">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://addspecificpageurlhere.com/">
+
+    <!-- Meta card data, (Twitter) -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@addtwitterhandlehere">
+    <meta name="twitter:creator" content="@addtwitterhandlehere">
+    <meta name="twitter:title" content="Add Site Title Here">
+    <meta name="twitter:description" content="Add site description here">
+    <meta name="twitter:image" content="http://addsiteurlhere.com/preview_image.png">
+
+    <!-- Apple touch icons, (keep icons in root folder) -->
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="apple-touch-icon-144x144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="apple-touch-icon-114x114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="apple-touch-icon-72x72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="57x57" href="apple-touch-icon-57x57-precomposed.png">
+
+    <!-- Theme Styles, (load in this order) -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <!-- Bootstrap framework -->
+    <link href="css/animsition.min.css" rel="stylesheet" type="text/css">
+    <!-- Page transitions -->
+    <link href="css/animate.css" rel="stylesheet" type="text/css">
+    <!-- Element animations -->
+    <link href="css/slidebars.min.css" rel="stylesheet" type="text/css" />
+    <!-- Off-canvas navigation -->
+    <link href="css/iconfont.css" rel="stylesheet" type="text/css">
+    <!-- Icon fonts -->
+    <link href="css/flexslider.css" rel="stylesheet" type="text/css">
+    <!-- Flexslider styles -->
+    <link href="css/style.css" rel="stylesheet" type="text/css">
+    <!-- Core theme styles -->
+    <link href="css/custom.css" rel="stylesheet" type="text/css">
+
+    <!-- Google Webfonts (Monserrat 400/700, Open Sans 400/600) -->
+    <link href='//fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:400,600' rel='stylesheet' type='text/css'>
+
+    <!-- jQuery | Load our jQuery, with an alternative source fallback to a local version if request is unavailable -->
+    <script src="js/plugins/jquery/dist/jquery.min.js"></script>
+    <!-- // <script>window.jQuery || document.write('<script src="js/jquery-1.11.1.min.js"><\/script>')</script> -->
+    <script src="js/plugins/angular/angular.min.js"></script>
+    <script src="js/plugins/angular-router.min.js"></script>
+    <script src="js/app/app.js"></script>
+    <script src="js/app/controller.js"></script>
+
+    <!-- Load these in the <head> for quicker IE8+ load times -->
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="js/html5shiv.min.js"></script>
+    <script src="js/respond.min.js"></script>
+    <![endif]-->
+
 </head>
-<body ng-app="senhoApp" ng-cloak ng-strict>
-	<div>
-		<div ng-controller="mainCtrl">
+
+<body id="index" ng-app="senhoApp" class="lightnav animsition">
+	<div ng-controller="appCtrl">
+		<ng-include src="offCanvasNav"></ng-include>
+		<div id="sb-site">
+			
 			<div ng-view autoscroll="true"></div>
-		</div>
-	</div>
+	
+	

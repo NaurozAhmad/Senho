@@ -1,0 +1,69 @@
+@charset "utf-8";
+/* CSS Document */
+/* Add custom styling below */
+/*  .beige-dk {
+	background-color: #000;
+}
+#hero h2 {
+	color: #FFF;
+}
+#hero p {
+	color: #D1D1D1;
+}
+.navbar .nav li.nolink, .navbar .nav > li > a, .learnmore, .lightnav .navbar-inner.lightnav-alt .nav > li > a, .lightnav .navbar-inner.lightnav-alt .learnmore {
+	color: #FFF;
+}
+button.navbar-toggle .icon-bar {
+	background-color: #FFF
+}
+.navbar-inner.lightnav-alt {
+	background-color: rgba(0, 0, 0, 0.7);
+}  */
+.beige-dk, .poster.beige-dk::before {
+    background-color: rgba(255, 255, 255, 0.8);
+}
+#figures.beige-dk {
+	background-color: #FFF;
+}
+
+.nav-logo {
+	height: 32px;
+}
+#companies .center-content {
+	display: flex;
+	justify-content: center;
+}
+#companies img {
+	height: 50px;
+}
+#companies .logo-square {
+	height: 100px;
+}
+#companies .flex-container {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+}
+#mailinglist #mc-email.form-control {
+	padding: 0 13px;
+}
+#mailinglist #mc-email.form-control:focus {
+	border-color: #FF4D4D;
+}
+#mailinglist textarea {
+	width: 100%;
+	box-shadow: none;
+	border-radius: 3px;
+	border: 1px solid #999;
+	margin-bottom: 15px;
+	resize: none;
+}
+#mailinglist textarea:focus {
+	border-color: #FF4D4D;
+}
+.pace .pace-progress {
+	background-color: #FF4D4D;
+}
+#mailinglist button.signup:hover {
+	background-color: #FF4D4D;
+}

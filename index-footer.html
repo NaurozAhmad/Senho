@@ -1,4 +1,28 @@
-	<script src="js/main.min.js"></script>
-	<script src="js/packages.min.js"></script>	
+		    
+		    <script src="js/plugins.min.js"></script><!-- Bootstrap core and concatenated plugins always load here -->
+		    <script src="js/jquery.flexslider-min.js"></script>
+		    
+		    <script src="js/scripts.js"></script><!-- Theme scripts -->
+		    <script src="includes/mailchimp/jquery.ajaxchimp.min.js"></script>
+			<script type="text/javascript">
+			$('#mc-form').ajaxChimp({
+			    // url: 'add-mailchimp-list-url-here'
+			});
+			</script>
+			<script type="text/javascript">
+		    $(document).ready(function($) {
+		        $('.flexslider').flexslider({
+		            animation: "fade",
+		            prevText: "",
+		            nextText: "",
+		            directionNav: true
+		        });
+		    });
+		    </script>
+		    <!-- Initiate flexslider plugin -->
+
+		</div>
+	</div>
+	<!-- ============================ END #sb-site Main Page Wrapper =========================== -->    
 </body>
 </html>

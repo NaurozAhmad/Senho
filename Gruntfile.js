@@ -4,6 +4,9 @@ module.exports = function(grunt) {
 		pkg: grunt.file.readJSON('package.json'),
 
 		uglify: {
+			options: {
+				mangle: false
+			},
 			my_target: {
 				files: {
 					'js/app.min.js': [
@@ -21,8 +24,8 @@ module.exports = function(grunt) {
 		},
 		watch: {
 			scripts: {
-				files: ['css/*.*', 'js/*.*', '!js/*.min.js', '!css/*.min.css', 'templates/*.html', 'templates/**/*.html', '*.html'],
-				tasks: ['concat', 'uglify', 'cssmin'],
+				files: ['css/*.*', 'js/**/*.js', '!js/app.min.js', '!css/*.min.css', 'templates/*.html', 'templates/**/*.html', '*.html', '!index.html'],
+				tasks: ['concat'],
 				options: {
 					interrupt: true,
 					livereload: {
@@ -53,5 +56,5 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-cssmin');
 
-	grunt.registerTask('default', ['concat', 'cssmin', 'watch']);
+	grunt.registerTask('default', ['concat', 'watch']);
 };
