@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Access-Control-Allow-Origin" content="*"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>Senho</title>
+	<script src="node_modules/angular/angular.min.js"></script>
+	<script src="node_modules/angular-ui-router/release/angular-ui-router.min.js"></script>
+	<link rel="stylesheet" href="css/main.min.css" />
+</head>
+<body ng-app="senhoApp" ng-cloak ng-strict>
+	<div>
+		<div ng-controller="mainCtrl">
+			<div ng-view autoscroll="true"></div>
+		</div>
+	</div>
+	<script src="js/main.min.js"></script>
+	<script src="js/packages.min.js"></script>	
+</body>
+</html>
