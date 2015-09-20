@@ -39,7 +39,7 @@ button.navbar-toggle .icon-bar {
 #companies .logo-square {
 	height: 100px;
 }
-#companies .flex-container {
+.flex-container {
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
@@ -64,6 +64,26 @@ button.navbar-toggle .icon-bar {
 .pace .pace-progress {
 	background-color: #FF4D4D;
 }
-#mailinglist button.signup:hover {
+#mailinglist button.signup:hover, .custom-button:hover {
 	background-color: #FF4D4D;
+}
+#mailinglist button.signup {
+	float: none;
+}
+.fade-in {
+	visibility: hidden;
+}
+.boxes p {
+	text-align: left;
+}
+.no-float {
+	float: none;
+}
+.underlined-link {
+	text-decoration: underline;
+	cursor: pointer;
+	font-size: 20px;
+	font-family: "Georgia",serif;
+	text-align: center;
+	font-style: italic;
 }

@@ -23,19 +23,19 @@
 
     <!-- Open graph meta data, (Facebook) -->
     <meta property="og:description" content="Add a description here">
-    <meta property="og:image" content="http://addsiteurlhere.com/preview_image.png">
+    <!-- <meta property="og:image" content="http://addsiteurlhere.com/preview_image.png"> -->
     <meta property="og:site_name" content="Add Site Name">
     <meta property="og:title" content="Add Page Title">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="http://addspecificpageurlhere.com/">
+    <!-- <meta property="og:url" content="http://addspecificpageurlhere.com/"> -->
 
     <!-- Meta card data, (Twitter) -->
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:site" content="@addtwitterhandlehere">
-    <meta name="twitter:creator" content="@addtwitterhandlehere">
+    <!-- <meta name="twitter:site" content="@addtwitterhandlehere">
+    <meta name="twitter:creator" content="@addtwitterhandlehere"> -->
     <meta name="twitter:title" content="Add Site Title Here">
     <meta name="twitter:description" content="Add site description here">
-    <meta name="twitter:image" content="http://addsiteurlhere.com/preview_image.png">
+    <!-- <meta name="twitter:image" content="http://addsiteurlhere.com/preview_image.png"> -->
 
     <!-- Apple touch icons, (keep icons in root folder) -->
     <link rel="apple-touch-icon-precomposed" sizes="144x144" href="apple-touch-icon-144x144-precomposed.png">
@@ -61,8 +61,8 @@
     <link href="css/custom.css" rel="stylesheet" type="text/css">
 
     <!-- Google Webfonts (Monserrat 400/700, Open Sans 400/600) -->
-    <link href='//fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
-    <link href='//fonts.googleapis.com/css?family=Open+Sans:400,600' rel='stylesheet' type='text/css'>
+    <!-- <link href='//fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:400,600' rel='stylesheet' type='text/css'> -->
 
     <!-- jQuery | Load our jQuery, with an alternative source fallback to a local version if request is unavailable -->
     <script src="js/plugins/jquery/dist/jquery.min.js"></script>
@@ -93,6 +93,7 @@
 	<div data-ng-include="header"></div>
 	<div data-ng-include="heroImage"></div>
 	<div data-ng-include="intro"></div>
+	<div data-ng-include="signup"></div>
 	<div data-ng-include="featured"></div>
 	<div data-ng-include="statement"></div>
 	<div data-ng-include="sponsors"></div>
@@ -106,10 +107,117 @@
 
 </script>
 
+<script type="text/ng-template" id="project.html">
+<div data-ng-include="header"></div>
+	
+	<!-- ============================ Page-content =========================== -->
+	
+	<section id="page-content" class="container">
+	    <div class="row">
+	        <div class="col-md-8 col-md-offset-2">
+	            <div class="row">
+	                <div class="col-md-4 client text-right">
+	                    <H3 style="margin-top: 0">Re-designing the user-interface for Zenghngdesk.</H3>
+	                    <hr class="client-accent">
+	                    <p>Client: Zendesk</p>
+	                </div>
+	                <div class="col-md-8">
+	                    <p>We're  talented Software Engineering, Infrastructure or Software Design Interns for Summer 2015. Our new hires will spend their first week with Squarespace at our Long Island beach house to learn about our code base, products, and company in a relaxed and creative environment.</p>
+	                    <p>If you are readhrgrggnhrtr herghny to solve problems alongside some of the best engineers and designers in the world, we want to he from you.</p>
+	                </div>
+	            </div>
+	            <hr>
+	        </div>
+	    </div>
+	    <ul class="row photoblock thumbnails" data-toggle="lightbox" style="margin-bottom:40px">
+	        <li class="col-xs-6 col-sm-6 col-md-3 col-lg-3 wow fadeInUp" data-wow-delay="0.2s">
+	            <a href="img/portfolio/single-item/item-1/1.jpg" title="Image #1" class="thumbnail">
+	            <img src="img/portfolio/single-item/item-1/1.jpg" class="img-responsive" alt="Add alt text"/>
+	            </a>
+	        </li>
+	        <li class="col-xs-6 col-sm-6 col-md-3 col-lg-3 wow fadeInUp" data-wow-delay="0.4s">
+	            <a href="img/portfolio/single-item/item-1/2.jpg" title="Image #2" class="thumbnail">
+	            <img src="img/portfolio/single-item/item-1/2.jpg" class="img-responsive" alt="Add alt text"/>
+	            </a>
+	        </li>
+	        <li class="col-xs-6 col-sm-6 col-md-3 col-lg-3 wow fadeInUp" data-wow-delay="0.6s">
+	            <a href="img/portfolio/single-item/item-1/3.jpg" title="Image #3" class="thumbnail">
+	            <img src="img/portfolio/single-item/item-1/3.jpg" class="img-responsive" alt="Add alt text"/>
+	            </a>
+	        </li>
+	        <li class="col-xs-6 col-sm-6 col-md-3 col-lg-3 wow fadeInUp" data-wow-delay="0.8s">
+	            <a href="img/portfolio/single-item/item-1/4.jpg" title="Image #4" class="thumbnail">
+	            <img src="img/portfolio/single-item/item-1/4.jpg" class="img-responsive" alt="Add alt text"/>
+	            </a>
+	        </li>
+	        <li class="clearfix"></li>
+	        <!-- Include this clearfix to ensure alignment, as we can't separate into 'rows' as it will break the lightbox chain -->
+	        <li class="col-xs-6 col-sm-6 col-md-3 col-lg-3 wow fadeInUp" data-wow-delay="1.0s">
+	            <a href="img/portfolio/single-item/item-1/5.jpg" title="Image #5" class="thumbnail">
+	            <img src="img/portfolio/single-item/item-1/5.jpg" class="img-responsive" alt="Add alt text"/>
+	            </a>
+	        </li>
+	        <li class="col-xs-6 col-sm-6 col-md-3 col-lg-3 wow fadeInUp" data-wow-delay="1.2s">
+	            <a href="img/portfolio/single-item/item-1/6.jpg" title="Image #6" class="thumbnail">
+	            <img src="img/portfolio/single-item/item-1/6.jpg" class="img-responsive" alt="Add alt text"/>
+	            </a>
+	        </li>
+	        <li class="col-xs-6 col-sm-6 col-md-3 col-lg-3 wow fadeInUp" data-wow-delay="1.4s">
+	            <a href="img/portfolio/single-item/item-1/7.jpg" title="Image #7" class="thumbnail">
+	            <img src="img/portfolio/single-item/item-1/7.jpg" class="img-responsive" alt="Add alt text"/>
+	            </a>
+	        </li>
+	        <li class="col-xs-6 col-sm-6 col-md-3 col-lg-3 wow fadeInUp" data-wow-delay="1.6s">
+	            <a href="img/portfolio/single-item/item-1/8.jpg" title="Image #8" class="thumbnail">
+	            <img src="img/portfolio/single-item/item-1/8.jpg" class="img-responsive" alt="Add alt text"/>
+	            </a>
+	        </li>
+	    </ul>
+	    <div class="row">
+	        <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 col-lg-6 col-lg-offset-3">
+	            <hr class="title-accent">
+	            <p class="text-justify">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ut volutpat justo. Donec consequat dui lacus, et faucibus augue condimentum eu. In quis placerat quam, ac dictum sem. Etiam sed erat sed massa tincidunt ornare. Nam in nibh posuere, mollis dui ut, porttitor lorem. In et tortor ac tellus imperdiet placerat.</p>
+	            <hr class="title-accent">
+	        </div>
+	    </div>
+	    <div class="row" style="margin-bottom: 40px">
+	        <div class="col-xs-12 col-sm-12 col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2">
+	            <div class="row">
+	                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 wow fadeInLeft" data-wow-delay="0.3s">
+	                    <img src="img/portfolio/single-item/item-1/tag-image-1.jpg" class="img-responsive" alt="Tag Image"/>
+	                    <div class="img-label">Mock-up Design</div>
+	                </div>
+	                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 wow fadeInRight" data-wow-delay="0.3s">
+	                    <img src="img/portfolio/single-item/item-1/tag-image-2.jpg" class="img-responsive" alt="Tag Image"/>
+	                    <div class="img-label">Mock-up Design</div>
+	                </div>
+	                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 wow fadeInLeft" data-wow-delay="0.6s">
+	                    <img src="img/portfolio/single-item/item-1/tag-image-3.jpg" class="img-responsive" alt="Tag Image"/>
+	                    <div class="img-label">Mock-up Design</div>
+	                </div>
+	                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 wow fadeInRight" data-wow-delay="0.6s">
+	                    <img src="img/portfolio/single-item/item-1/tag-image-4.jpg" class="img-responsive" alt="Tag Image"/>
+	                    <div class="img-label">Mock-up Design</div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	    <div class="row">
+	        <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3 col-lg-6 col-lg-offset-3">
+	            <hr class="title-accent">
+	            <p class="text-justify">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ut volutpat justo. Donec consequat dui lacus, et faucibus augue condimentum eu. In quis placerat quam, ac dictum sem. Etiam sed erat sed massa tincidunt ornare. Nam in nibh posuere, mollis dui ut, porttitor lorem. In et tortor ac tellus imperdiet placerat. Donec eget libero quis eros elementum consequat. Donec neque ipsum, aliquet a ipsum a, malesuada hendrerit nisl. Nam ac lacinia ante. Ut mollis neque felis, at scelerisque erat tempor at. Integer ornare neque justo, ut rhoncus magna dignissim vitae.</p>
+	            <hr class="title-accent">
+	        </div>
+	    </div>
+	</section>
+	
+	<!-- ============================ END Page-content =========================== -->
+</script>
 <script type="text/ng-template" id="featured.html">
 	<!-- ============================ Featured =========================== -->
 	
-	<section id="featured" class="no-top-padding">
+	<section id="featured">
+	<hr class="nogutter">
 		<div class="container">
 			<div class="row">
 				<div class="col-md-12 titleblock text-center">
@@ -156,6 +264,13 @@
 						<span class="byline">A project that uses the latest design techniques and technologies, with user-first approach.</span>
 					</a>
 				</div>
+				    
+			</div>
+			<div style="margin-top: 20px;">
+				<hr class="title-accent">
+				<p class="underlined-link">
+				    <a href="#/portfolio">See all our projects.</a>
+				</p>
 			</div>
 		</div>
 	</section>
@@ -326,6 +441,9 @@
                             <p>There are many solutions to a problem. We work tirelessly to find the solution that is closest to human nature.</p>
                             <!--We work with educational institutes, government agencies and NGOs to find solutions to real-world problems.-->
                             <!--Currently, I work as an interactive designer. Whether it's crafting a design, UX, or animation, I'll tirelessly perfect each detail.-->
+                            <!--<div style="margin-top: 40px;">
+                            	<img src="img/global/cursor-down.png" class="animated long infinite bounce" style="width: 40px;">
+                            </div>-->
                         </div>
                     </div>
                     <!-- // .center-me .text-center -->
@@ -576,43 +694,43 @@
                         </div>
                     </div>
                     <div class="row boxes">
-                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 wow fadeInUp" data-wow-delay="0.3s">
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 wow fadeInUp" align="center" data-wow-delay="0.3s">
                             <i class="icon-basic-pencil-ruler-pen"></i>
                             <h4>Web Design</h4>
                             <p>We create beautiful and professional designs with cross-devices responsiveness in mind.</p>
                         </div>
-                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 wow fadeInUp" data-wow-delay="0.6s">
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 wow fadeInUp" align="center" data-wow-delay="0.6s">
                             <i class="icon-basic-webpage-img-txt"></i>
                             <h4>Web Apps</h4>
                             <p>Solve real-world problems. We make web apps which are scalable and able to work smoothly even under heavy usage.</p>
                         </div>
                     </div>
                     <div class="row boxes">
-                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 wow fadeInUp" data-wow-delay="0.3s">
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 wow fadeInUp" align="center" data-wow-delay="0.3s">
                             <i class="icon-basic-smartphone"></i>
                             <h4>Mobile Apps</h4>
                             <p>Develop cross-platform compatible mobile apps that can fulfill any requirements you have in mind.</p>
                         </div>
-                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 wow fadeInUp" data-wow-delay="0.6s">
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 wow fadeInUp" align="center" data-wow-delay="0.6s">
                             <i class="icon-basic-archive-full"></i>
                             <h4>Data Recovery</h4>
                             <p>We have tools that can recover your valued data.</p>
                         </div>
                     </div>
                     <div class="row boxes">
-                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 wow fadeInUp" data-wow-delay="0.3s">
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 wow fadeInUp" align="center" data-wow-delay="0.3s">
                             <i class="icon-basic-laptop"></i>
                             <h4>Hardware Supply</h4>
                             <p>We procure and supply any kind of hardware anywhere you want.</p>
                         </div>
-                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 wow fadeInUp" data-wow-delay="0.6s">
+                        <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 wow fadeInUp" align="center" data-wow-delay="0.6s">
                             <i class="icon-basic-world"></i>
                             <h4>Networking</h4>
                             <p>If you're setting up a new workplace or reconfiguring your stations, we'll connect your devices with the world.</p>
                         </div>
                     </div>
                     <div class="row boxes">
-                        <div class="col-lg-offset-3 col-md-offset-3 col-xs-12 col-sm-6 col-md-6 col-lg-6 wow fadeInUp" data-wow-delay="0.3s">
+                        <div class="col-lg-offset-3 col-md-offset-3 col-xs-12 col-sm-6 col-md-6 col-lg-6 wow fadeInUp" align="center" data-wow-delay="0.3s">
                             <i class="icon-basic-magnifier"></i>
                             <h4>SEO</h4>
                             <p>Ensure your ideas and products are always showcased to the world.</p>
@@ -639,19 +757,34 @@
                     <h4>Get in <span>touch</span>.</h4>
                     <hr class="title-accent">
                     <p>Contact us if you have an awesome idea, want a quotation or just to say hi.</p>
-                    <form id="mc-form">
-                        <input id="mc-email" type="email" class="form-control" placeholder="Enter your email">
-                        <textarea class="form-control" placeholder="Write your message."></textarea>
-                        <button type="submit" class="btn signup">Register</button>
-                        <label for="mc-email" class="status"></label>
-                    </form>
+                    <div>
+                        <form id="mc-form">
+                            <input id="mc-email" type="email" class="form-control" placeholder="Enter your email">
+                            <textarea class="form-control" placeholder="Write your message."></textarea>
+                            <button type="submit" class="btn signup">Send</button>
+                            <!--<label for="mc-email" class="status"></label>-->
+                        </form>
+                    </div>
+                    <div>
+                        <hr class="title-accent">
+                        <p>
+                            Or if you're ready to begin your project, follow the link below and tell us what you have in mind.
+                        </p>
+                        <div class="col-md-6 col-md-offset-3 no-float">
+                            <a href="#/proposal" class="custom-button animsition-link" title="Proposal">Start Your Project</a>
+                        </div>
+                    </div>
+                    <div>
+                        <hr class="title-accent">
+                        <p class="underlined-link">
+                            <a href="#/team">Get to know our team members.</a>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
-    
     <!-- Mailchimp ajax form submit -->
-    
     <!-- ============================ END Ajax Mailchimp sign-up form =========================== -->
 </script>
 
