@@ -2701,7 +2701,7 @@ ul.filters li p:hover {
 		display: none;
 	}
 }
-#portfolio-item .thumbnail {
+.portfolio-item .thumbnail, #portfolio-item .thumbnail {
 	padding: 0;
 	margin-bottom: 0;
 	border: none;
@@ -2723,7 +2723,7 @@ ul.filters li p:hover {
 #portfolio-item ul.photoblock {
 	padding-left: 0
 }
-#portfolio-item ul.photoblock li {
+#portfolio-item ul.photoblock li, .portfolio-item ul.photoblock li {
 	list-style: none;
 	padding: 6px;
 }

@@ -6,6 +6,9 @@ senhoApp.config(function($routeProvider) {
 			templateUrl: 'main.html',
 			controller: 'mainCtrl'
 		})
+		.when('/project', {
+			templateUrl: 'project.html'
+		})
 		.otherwise({
 			redirectTo: '/main'
 		})

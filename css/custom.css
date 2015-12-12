@@ -87,3 +87,6 @@ button.navbar-toggle .icon-bar {
 	text-align: center;
 	font-style: italic;
 }
+.bold {
+	font-weight: bold;
+}
