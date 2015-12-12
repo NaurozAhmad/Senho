@@ -47,6 +47,8 @@ if (ew_IsResponsiveLayout()) {
 <script type="text/javascript" src="<?php echo $EW_RELATIVE_PATH ?>colorbox/jquery.colorbox-min.js"></script>
 <script type="text/javascript" src="<?php echo $EW_RELATIVE_PATH ?>phpjs/mobile-detect.min.js"></script>
 <script type="text/javascript" src="<?php echo $EW_RELATIVE_PATH ?>phpjs/moment.min.js"></script>
+<script type="text/javascript" src="<?php echo $EW_RELATIVE_PATH ?>ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="<?php echo $EW_RELATIVE_PATH ?>phpjs/eweditor.js"></script>
 <script type="text/javascript">
 var EW_LANGUAGE_ID = "<?php echo $gsLanguage ?>";
 var EW_DATE_SEPARATOR = "/"; // Default date separator

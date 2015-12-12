@@ -247,6 +247,11 @@ class cprojects_edit extends cprojects {
 	function Page_Init() {
 		global $gsExport, $gsCustomExport, $gsExportFile, $UserProfile, $Language, $Security, $objForm;
 
+		// Security
+		$Security = new cAdvancedSecurity();
+		if (!$Security->IsLoggedIn()) $Security->AutoLogin();
+		if (!$Security->IsLoggedIn()) $this->Page_Terminate(ew_GetUrl("login.php"));
+
 		// Create form object
 		$objForm = new cFormObj();
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
@@ -431,6 +436,9 @@ class cprojects_edit extends cprojects {
 		global $objForm, $Language;
 
 		// Get upload data
+		$this->images->Upload->Index = $objForm->Index;
+		$this->images->Upload->UploadFile();
+		$this->images->CurrentValue = $this->images->Upload->FileName;
 	}
 
 	// Load form values
@@ -438,13 +446,11 @@ class cprojects_edit extends cprojects {
 
 		// Load from form
 		global $objForm;
+		$this->GetUploadFiles(); // Get upload files
 		if (!$this->id->FldIsDetailKey)
 			$this->id->setFormValue($objForm->GetValue("x_id"));
 		if (!$this->title->FldIsDetailKey) {
 			$this->title->setFormValue($objForm->GetValue("x_title"));
-		}
-		if (!$this->images->FldIsDetailKey) {
-			$this->images->setFormValue($objForm->GetValue("x_images"));
 		}
 		if (!$this->intro->FldIsDetailKey) {
 			$this->intro->setFormValue($objForm->GetValue("x_intro"));
@@ -463,7 +469,6 @@ class cprojects_edit extends cprojects {
 		$this->LoadRow();
 		$this->id->CurrentValue = $this->id->FormValue;
 		$this->title->CurrentValue = $this->title->FormValue;
-		$this->images->CurrentValue = $this->images->FormValue;
 		$this->intro->CurrentValue = $this->intro->FormValue;
 		$this->full_intro->CurrentValue = $this->full_intro->FormValue;
 		$this->details->CurrentValue = $this->details->FormValue;
@@ -500,7 +505,8 @@ class cprojects_edit extends cprojects {
 		$this->Row_Selected($row);
 		$this->id->setDbValue($rs->fields('id'));
 		$this->title->setDbValue($rs->fields('title'));
-		$this->images->setDbValue($rs->fields('images'));
+		$this->images->Upload->DbValue = $rs->fields('images');
+		$this->images->CurrentValue = $this->images->Upload->DbValue;
 		$this->intro->setDbValue($rs->fields('intro'));
 		$this->full_intro->setDbValue($rs->fields('full_intro'));
 		$this->details->setDbValue($rs->fields('details'));
@@ -512,7 +518,7 @@ class cprojects_edit extends cprojects {
 		$row = is_array($rs) ? $rs : $rs->fields;
 		$this->id->DbValue = $row['id'];
 		$this->title->DbValue = $row['title'];
-		$this->images->DbValue = $row['images'];
+		$this->images->Upload->DbValue = $row['images'];
 		$this->intro->DbValue = $row['intro'];
 		$this->full_intro->DbValue = $row['full_intro'];
 		$this->details->DbValue = $row['details'];
@@ -546,7 +552,11 @@ class cprojects_edit extends cprojects {
 		$this->title->ViewCustomAttributes = "";
 
 		// images
-		$this->images->ViewValue = $this->images->CurrentValue;
+		if (!ew_Empty($this->images->Upload->DbValue)) {
+			$this->images->ViewValue = $this->images->Upload->DbValue;
+		} else {
+			$this->images->ViewValue = "";
+		}
 		$this->images->ViewCustomAttributes = "";
 
 		// intro
@@ -574,6 +584,7 @@ class cprojects_edit extends cprojects {
 			// images
 			$this->images->LinkCustomAttributes = "";
 			$this->images->HrefValue = "";
+			$this->images->HrefValue2 = $this->images->UploadPath . $this->images->Upload->DbValue;
 			$this->images->TooltipValue = "";
 
 			// intro
@@ -607,8 +618,14 @@ class cprojects_edit extends cprojects {
 			// images
 			$this->images->EditAttrs["class"] = "form-control";
 			$this->images->EditCustomAttributes = "";
-			$this->images->EditValue = ew_HtmlEncode($this->images->CurrentValue);
-			$this->images->PlaceHolder = ew_RemoveHtml($this->images->FldCaption());
+			if (!ew_Empty($this->images->Upload->DbValue)) {
+				$this->images->EditValue = $this->images->Upload->DbValue;
+			} else {
+				$this->images->EditValue = "";
+			}
+			if (!ew_Empty($this->images->CurrentValue))
+				$this->images->Upload->FileName = $this->images->CurrentValue;
+			if ($this->CurrentAction == "I" && !$this->EventCancelled) ew_RenderUploadField($this->images);
 
 			// intro
 			$this->intro->EditAttrs["class"] = "form-control";
@@ -638,6 +655,7 @@ class cprojects_edit extends cprojects {
 
 			// images
 			$this->images->HrefValue = "";
+			$this->images->HrefValue2 = $this->images->UploadPath . $this->images->Upload->DbValue;
 
 			// intro
 			$this->intro->HrefValue = "";
@@ -672,7 +690,7 @@ class cprojects_edit extends cprojects {
 		if (!$this->title->FldIsDetailKey && !is_null($this->title->FormValue) && $this->title->FormValue == "") {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->title->FldCaption(), $this->title->ReqErrMsg));
 		}
-		if (!$this->images->FldIsDetailKey && !is_null($this->images->FormValue) && $this->images->FormValue == "") {
+		if ($this->images->Upload->FileName == "" && !$this->images->Upload->KeepFile) {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->images->FldCaption(), $this->images->ReqErrMsg));
 		}
 		if (!$this->intro->FldIsDetailKey && !is_null($this->intro->FormValue) && $this->intro->FormValue == "") {
@@ -722,7 +740,14 @@ class cprojects_edit extends cprojects {
 			$this->title->SetDbValueDef($rsnew, $this->title->CurrentValue, "", $this->title->ReadOnly);
 
 			// images
-			$this->images->SetDbValueDef($rsnew, $this->images->CurrentValue, "", $this->images->ReadOnly);
+			if (!($this->images->ReadOnly) && !$this->images->Upload->KeepFile) {
+				$this->images->Upload->DbValue = $rsold['images']; // Get original value
+				if ($this->images->Upload->FileName == "") {
+					$rsnew['images'] = NULL;
+				} else {
+					$rsnew['images'] = $this->images->Upload->FileName;
+				}
+			}
 
 			// intro
 			$this->intro->SetDbValueDef($rsnew, $this->intro->CurrentValue, "", $this->intro->ReadOnly);
@@ -732,6 +757,34 @@ class cprojects_edit extends cprojects {
 
 			// details
 			$this->details->SetDbValueDef($rsnew, $this->details->CurrentValue, "", $this->details->ReadOnly);
+			if (!$this->images->Upload->KeepFile) {
+				$OldFiles = explode(EW_MULTIPLE_UPLOAD_SEPARATOR, $this->images->Upload->DbValue);
+				if (!ew_Empty($this->images->Upload->FileName)) {
+					$NewFiles = explode(EW_MULTIPLE_UPLOAD_SEPARATOR, $this->images->Upload->FileName);
+					$FileCount = count($NewFiles);
+					for ($i = 0; $i < $FileCount; $i++) {
+						$fldvar = ($this->images->Upload->Index < 0) ? $this->images->FldVar : substr($this->images->FldVar, 0, 1) . $this->images->Upload->Index . substr($this->images->FldVar, 1);
+						if ($NewFiles[$i] <> "") {
+							$file = $NewFiles[$i];
+							if (file_exists(ew_UploadTempPath($fldvar, $this->images->TblVar) . EW_PATH_DELIMITER . $file)) {
+								if (!in_array($file, $OldFiles)) {
+									$file1 = ew_UploadFileNameEx(ew_UploadPathEx(TRUE, $this->images->UploadPath), $file); // Get new file name
+									if ($file1 <> $file) { // Rename temp file
+										while (file_exists(ew_UploadTempPath($fldvar, $this->images->TblVar) . EW_PATH_DELIMITER . $file1)) // Make sure did not clash with existing upload file
+											$file1 = ew_UniqueFilename(ew_UploadPathEx(TRUE, $this->images->UploadPath), $file1, TRUE); // Use indexed name
+										rename(ew_UploadTempPath($fldvar, $this->images->TblVar) . EW_PATH_DELIMITER . $file, ew_UploadTempPath($fldvar, $this->images->TblVar) . EW_PATH_DELIMITER . $file1);
+										$NewFiles[$i] = $file1;
+									}
+								}
+							}
+						}
+					}
+					$this->images->Upload->FileName = implode(EW_MULTIPLE_UPLOAD_SEPARATOR, $NewFiles);
+					$rsnew['images'] = $this->images->Upload->FileName;
+				} else {
+					$NewFiles = array();
+				}
+			}
 
 			// Call Row Updating event
 			$bUpdateRow = $this->Row_Updating($rsold, $rsnew);
@@ -743,6 +796,25 @@ class cprojects_edit extends cprojects {
 					$EditRow = TRUE; // No field to update
 				$conn->raiseErrorFn = '';
 				if ($EditRow) {
+					if (!$this->images->Upload->KeepFile) {
+						$OldFiles = explode(EW_MULTIPLE_UPLOAD_SEPARATOR, $this->images->Upload->DbValue);
+						if (!ew_Empty($this->images->Upload->FileName)) {
+							$NewFiles = explode(EW_MULTIPLE_UPLOAD_SEPARATOR, $this->images->Upload->FileName);
+							$NewFiles2 = explode(EW_MULTIPLE_UPLOAD_SEPARATOR, $rsnew['images']);
+							$FileCount = count($NewFiles);
+							for ($i = 0; $i < $FileCount; $i++) {
+								$fldvar = ($this->images->Upload->Index < 0) ? $this->images->FldVar : substr($this->images->FldVar, 0, 1) . $this->images->Upload->Index . substr($this->images->FldVar, 1);
+								if ($NewFiles[$i] <> "") {
+									$file = ew_UploadTempPath($fldvar, $this->images->TblVar) . EW_PATH_DELIMITER . $NewFiles[$i];
+									if (file_exists($file)) {
+										$this->images->Upload->SaveToFile($this->images->UploadPath, (@$NewFiles2[$i] <> "") ? $NewFiles2[$i] : $NewFiles[$i], TRUE, $i); // Just replace
+									}
+								}
+							}
+						} else {
+							$NewFiles = array();
+						}
+					}
 				}
 			} else {
 				if ($this->getSuccessMessage() <> "" || $this->getFailureMessage() <> "") {
@@ -762,6 +834,9 @@ class cprojects_edit extends cprojects {
 		if ($EditRow)
 			$this->Row_Updated($rsold, $rsnew);
 		$rs->Close();
+
+		// images
+		ew_CleanUploadTempPath($this->images, $this->images->Upload->Index);
 		return $EditRow;
 	}
 
@@ -886,9 +961,10 @@ fprojectsedit.Validate = function() {
 			elm = this.GetElements("x" + infix + "_title");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $projects->title->FldCaption(), $projects->title->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_images");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $projects->images->FldCaption(), $projects->images->ReqErrMsg)) ?>");
+			felm = this.GetElements("x" + infix + "_images");
+			elm = this.GetElements("fn_x" + infix + "_images");
+			if (felm && elm && !ew_HasValue(elm))
+				return this.OnError(felm, "<?php echo ew_JsEncode2(str_replace("%s", $projects->images->FldCaption(), $projects->images->ReqErrMsg)) ?>");
 			elm = this.GetElements("x" + infix + "_intro");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
 				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $projects->intro->FldCaption(), $projects->intro->ReqErrMsg)) ?>");
@@ -978,10 +1054,26 @@ $projects_edit->ShowMessage();
 <?php } ?>
 <?php if ($projects->images->Visible) { // images ?>
 	<div id="r_images" class="form-group">
-		<label id="elh_projects_images" for="x_images" class="col-sm-2 control-label ewLabel"><?php echo $projects->images->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<label id="elh_projects_images" class="col-sm-2 control-label ewLabel"><?php echo $projects->images->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="col-sm-10"><div<?php echo $projects->images->CellAttributes() ?>>
 <span id="el_projects_images">
-<textarea data-table="projects" data-field="x_images" name="x_images" id="x_images" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($projects->images->getPlaceHolder()) ?>"<?php echo $projects->images->EditAttributes() ?>><?php echo $projects->images->EditValue ?></textarea>
+<div id="fd_x_images">
+<span title="<?php echo $projects->images->FldTitle() ? $projects->images->FldTitle() : $Language->Phrase("ChooseFiles") ?>" class="btn btn-default btn-sm fileinput-button ewTooltip<?php if ($projects->images->ReadOnly || $projects->images->Disabled) echo " hide"; ?>">
+	<span><?php echo $Language->Phrase("ChooseFileBtn") ?></span>
+	<input type="file" title=" " data-table="projects" data-field="x_images" name="x_images" id="x_images" multiple="multiple"<?php echo $projects->images->EditAttributes() ?>>
+</span>
+<input type="hidden" name="fn_x_images" id= "fn_x_images" value="<?php echo $projects->images->Upload->FileName ?>">
+<?php if (@$_POST["fa_x_images"] == "0") { ?>
+<input type="hidden" name="fa_x_images" id= "fa_x_images" value="0">
+<?php } else { ?>
+<input type="hidden" name="fa_x_images" id= "fa_x_images" value="1">
+<?php } ?>
+<input type="hidden" name="fs_x_images" id= "fs_x_images" value="5000">
+<input type="hidden" name="fx_x_images" id= "fx_x_images" value="<?php echo $projects->images->UploadAllowedFileExt ?>">
+<input type="hidden" name="fm_x_images" id= "fm_x_images" value="<?php echo $projects->images->UploadMaxFileSize ?>">
+<input type="hidden" name="fc_x_images" id= "fc_x_images" value="<?php echo $projects->images->UploadMaxFileCount ?>">
+</div>
+<table id="ft_x_images" class="table table-condensed pull-left ewUploadTable"><tbody class="files"></tbody></table>
 </span>
 <?php echo $projects->images->CustomMsg ?></div></div>
 	</div>
@@ -991,7 +1083,7 @@ $projects_edit->ShowMessage();
 		<label id="elh_projects_intro" for="x_intro" class="col-sm-2 control-label ewLabel"><?php echo $projects->intro->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="col-sm-10"><div<?php echo $projects->intro->CellAttributes() ?>>
 <span id="el_projects_intro">
-<textarea data-table="projects" data-field="x_intro" name="x_intro" id="x_intro" cols="50" rows="4" placeholder="<?php echo ew_HtmlEncode($projects->intro->getPlaceHolder()) ?>"<?php echo $projects->intro->EditAttributes() ?>><?php echo $projects->intro->EditValue ?></textarea>
+<textarea data-table="projects" data-field="x_intro" name="x_intro" id="x_intro" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($projects->intro->getPlaceHolder()) ?>"<?php echo $projects->intro->EditAttributes() ?>><?php echo $projects->intro->EditValue ?></textarea>
 </span>
 <?php echo $projects->intro->CustomMsg ?></div></div>
 	</div>
@@ -1003,6 +1095,9 @@ $projects_edit->ShowMessage();
 <span id="el_projects_full_intro">
 <?php ew_AppendClass($projects->full_intro->EditAttrs["class"], "editor"); ?>
 <textarea data-table="projects" data-field="x_full_intro" name="x_full_intro" id="x_full_intro" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($projects->full_intro->getPlaceHolder()) ?>"<?php echo $projects->full_intro->EditAttributes() ?>><?php echo $projects->full_intro->EditValue ?></textarea>
+<script type="text/javascript">
+ew_CreateEditor("fprojectsedit", "x_full_intro", 35, 4, <?php echo ($projects->full_intro->ReadOnly || FALSE) ? "true" : "false" ?>);
+</script>
 </span>
 <?php echo $projects->full_intro->CustomMsg ?></div></div>
 	</div>
@@ -1014,6 +1109,9 @@ $projects_edit->ShowMessage();
 <span id="el_projects_details">
 <?php ew_AppendClass($projects->details->EditAttrs["class"], "editor"); ?>
 <textarea data-table="projects" data-field="x_details" name="x_details" id="x_details" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($projects->details->getPlaceHolder()) ?>"<?php echo $projects->details->EditAttributes() ?>><?php echo $projects->details->EditValue ?></textarea>
+<script type="text/javascript">
+ew_CreateEditor("fprojectsedit", "x_details", 35, 4, <?php echo ($projects->details->ReadOnly || FALSE) ? "true" : "false" ?>);
+</script>
 </span>
 <?php echo $projects->details->CustomMsg ?></div></div>
 	</div>

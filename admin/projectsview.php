@@ -303,6 +303,11 @@ class cprojects_view extends cprojects {
 	//
 	function Page_Init() {
 		global $gsExport, $gsCustomExport, $gsExportFile, $UserProfile, $Language, $Security, $objForm;
+
+		// Security
+		$Security = new cAdvancedSecurity();
+		if (!$Security->IsLoggedIn()) $Security->AutoLogin();
+		if (!$Security->IsLoggedIn()) $this->Page_Terminate(ew_GetUrl("login.php"));
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
 		$this->id->Visible = !$this->IsAdd() && !$this->IsCopy() && !$this->IsGridAdd();
 
@@ -431,22 +436,22 @@ class cprojects_view extends cprojects {
 		// Add
 		$item = &$option->Add("add");
 		$item->Body = "<a class=\"ewAction ewAdd\" title=\"" . ew_HtmlTitle($Language->Phrase("ViewPageAddLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("ViewPageAddLink")) . "\" href=\"" . ew_HtmlEncode($this->AddUrl) . "\">" . $Language->Phrase("ViewPageAddLink") . "</a>";
-		$item->Visible = ($this->AddUrl <> "");
+		$item->Visible = ($this->AddUrl <> "" && $Security->IsLoggedIn());
 
 		// Edit
 		$item = &$option->Add("edit");
 		$item->Body = "<a class=\"ewAction ewEdit\" title=\"" . ew_HtmlTitle($Language->Phrase("ViewPageEditLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("ViewPageEditLink")) . "\" href=\"" . ew_HtmlEncode($this->EditUrl) . "\">" . $Language->Phrase("ViewPageEditLink") . "</a>";
-		$item->Visible = ($this->EditUrl <> "");
+		$item->Visible = ($this->EditUrl <> "" && $Security->IsLoggedIn());
 
 		// Copy
 		$item = &$option->Add("copy");
 		$item->Body = "<a class=\"ewAction ewCopy\" title=\"" . ew_HtmlTitle($Language->Phrase("ViewPageCopyLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("ViewPageCopyLink")) . "\" href=\"" . ew_HtmlEncode($this->CopyUrl) . "\">" . $Language->Phrase("ViewPageCopyLink") . "</a>";
-		$item->Visible = ($this->CopyUrl <> "");
+		$item->Visible = ($this->CopyUrl <> "" && $Security->IsLoggedIn());
 
 		// Delete
 		$item = &$option->Add("delete");
 		$item->Body = "<a class=\"ewAction ewDelete\" title=\"" . ew_HtmlTitle($Language->Phrase("ViewPageDeleteLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("ViewPageDeleteLink")) . "\" href=\"" . ew_HtmlEncode($this->DeleteUrl) . "\">" . $Language->Phrase("ViewPageDeleteLink") . "</a>";
-		$item->Visible = ($this->DeleteUrl <> "");
+		$item->Visible = ($this->DeleteUrl <> "" && $Security->IsLoggedIn());
 
 		// Set up action default
 		$option = &$options["action"];
@@ -526,7 +531,8 @@ class cprojects_view extends cprojects {
 		$this->Row_Selected($row);
 		$this->id->setDbValue($rs->fields('id'));
 		$this->title->setDbValue($rs->fields('title'));
-		$this->images->setDbValue($rs->fields('images'));
+		$this->images->Upload->DbValue = $rs->fields('images');
+		$this->images->CurrentValue = $this->images->Upload->DbValue;
 		$this->intro->setDbValue($rs->fields('intro'));
 		$this->full_intro->setDbValue($rs->fields('full_intro'));
 		$this->details->setDbValue($rs->fields('details'));
@@ -538,7 +544,7 @@ class cprojects_view extends cprojects {
 		$row = is_array($rs) ? $rs : $rs->fields;
 		$this->id->DbValue = $row['id'];
 		$this->title->DbValue = $row['title'];
-		$this->images->DbValue = $row['images'];
+		$this->images->Upload->DbValue = $row['images'];
 		$this->intro->DbValue = $row['intro'];
 		$this->full_intro->DbValue = $row['full_intro'];
 		$this->details->DbValue = $row['details'];
@@ -578,7 +584,11 @@ class cprojects_view extends cprojects {
 		$this->title->ViewCustomAttributes = "";
 
 		// images
-		$this->images->ViewValue = $this->images->CurrentValue;
+		if (!ew_Empty($this->images->Upload->DbValue)) {
+			$this->images->ViewValue = $this->images->Upload->DbValue;
+		} else {
+			$this->images->ViewValue = "";
+		}
 		$this->images->ViewCustomAttributes = "";
 
 		// intro
@@ -606,6 +616,7 @@ class cprojects_view extends cprojects {
 			// images
 			$this->images->LinkCustomAttributes = "";
 			$this->images->HrefValue = "";
+			$this->images->HrefValue2 = $this->images->UploadPath . $this->images->Upload->DbValue;
 			$this->images->TooltipValue = "";
 
 			// intro
@@ -822,7 +833,8 @@ $projects_view->ShowMessage();
 		<td data-name="images"<?php echo $projects->images->CellAttributes() ?>>
 <span id="el_projects_images">
 <span<?php echo $projects->images->ViewAttributes() ?>>
-<?php echo $projects->images->ViewValue ?></span>
+<?php echo ew_GetFileViewTag($projects->images, $projects->images->ViewValue) ?>
+</span>
 </span>
 </td>
 	</tr>

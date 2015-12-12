@@ -196,6 +196,9 @@ class cdefault {
 	function Page_Init() {
 		global $gsExport, $gsCustomExport, $gsExportFile, $UserProfile, $Language, $Security, $objForm;
 
+		// Security
+		$Security = new cAdvancedSecurity();
+
 		// Global Page Loading event (in userfn*.php)
 		Page_Loading();
 
@@ -245,7 +248,14 @@ class cdefault {
 	//
 	function Page_Main() {
 		global $Security, $Language;
+		if (!$Security->IsLoggedIn()) $Security->AutoLogin();
+		if ($Security->IsLoggedIn())
 		$this->Page_Terminate("projectslist.php"); // Exit and go to default page
+		if ($Security->IsLoggedIn()) {
+			$this->setFailureMessage($Language->Phrase("NoPermission") . "<br><br><a href=\"logout.php\">" . $Language->Phrase("BackToLogin") . "</a>");
+		} else {
+			$this->Page_Terminate("login.php"); // Exit and go to login page
+		}
 	}
 
 	// Page Load event

@@ -441,15 +441,15 @@
 <table id="projects"><phrase id="tblcaption" value="projects"/>
 <field id="id"><phrase id="fldcaption" value="id"/>
 </field>
-<field id="title"><phrase id="fldcaption" value="Title"/>
+<field id="title"><phrase id="fldcaption" value="title"/>
 </field>
-<field id="images"><phrase id="fldcaption" value="Images"/>
+<field id="images"><phrase id="fldcaption" value="images"/>
 </field>
-<field id="intro"><phrase id="fldcaption" value="Main Intro"/>
+<field id="intro"><phrase id="fldcaption" value="intro"/>
 </field>
-<field id="full_intro"><phrase id="fldcaption" value="Full Intro"/>
+<field id="full_intro"><phrase id="fldcaption" value="full intro"/>
 </field>
-<field id="details"><phrase id="fldcaption" value="Details"/>
+<field id="details"><phrase id="fldcaption" value="details"/>
 </field>
 </table>
 </project>

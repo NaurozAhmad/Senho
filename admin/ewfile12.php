@@ -52,6 +52,11 @@ class cfile {
 		if ($table <> "" && EW_ENCRYPT_FILE_PATH)
 			$table = ew_Decrypt($table, $key);
 
+		// Security
+		$Security = new cAdvancedSecurity();
+		if (!$Security->IsLoggedIn()) $Security->AutoLogin();
+		if (!$Security->IsLoggedIn()) exit(); // No permission
+
 		// Global Page Loading event (in userfn*.php)
 		//***Page_Loading();
 		// Get resize parameters

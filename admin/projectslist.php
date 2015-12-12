@@ -329,6 +329,11 @@ class cprojects_list extends cprojects {
 	//
 	function Page_Init() {
 		global $gsExport, $gsCustomExport, $gsExportFile, $UserProfile, $Language, $Security, $objForm;
+
+		// Security
+		$Security = new cAdvancedSecurity();
+		if (!$Security->IsLoggedIn()) $Security->AutoLogin();
+		if (!$Security->IsLoggedIn()) $this->Page_Terminate(ew_GetUrl("login.php"));
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
 
 		// Get grid add count
@@ -655,25 +660,25 @@ class cprojects_list extends cprojects {
 		// "view"
 		$item = &$this->ListOptions->Add("view");
 		$item->CssStyle = "white-space: nowrap;";
-		$item->Visible = TRUE;
+		$item->Visible = $Security->IsLoggedIn();
 		$item->OnLeft = FALSE;
 
 		// "edit"
 		$item = &$this->ListOptions->Add("edit");
 		$item->CssStyle = "white-space: nowrap;";
-		$item->Visible = TRUE;
+		$item->Visible = $Security->IsLoggedIn();
 		$item->OnLeft = FALSE;
 
 		// "copy"
 		$item = &$this->ListOptions->Add("copy");
 		$item->CssStyle = "white-space: nowrap;";
-		$item->Visible = TRUE;
+		$item->Visible = $Security->IsLoggedIn();
 		$item->OnLeft = FALSE;
 
 		// "delete"
 		$item = &$this->ListOptions->Add("delete");
 		$item->CssStyle = "white-space: nowrap;";
-		$item->Visible = TRUE;
+		$item->Visible = $Security->IsLoggedIn();
 		$item->OnLeft = FALSE;
 
 		// List actions
@@ -715,14 +720,14 @@ class cprojects_list extends cprojects {
 
 		// "view"
 		$oListOpt = &$this->ListOptions->Items["view"];
-		if (TRUE)
+		if ($Security->IsLoggedIn())
 			$oListOpt->Body = "<a class=\"ewRowLink ewView\" title=\"" . ew_HtmlTitle($Language->Phrase("ViewLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("ViewLink")) . "\" href=\"" . ew_HtmlEncode($this->ViewUrl) . "\">" . $Language->Phrase("ViewLink") . "</a>";
 		else
 			$oListOpt->Body = "";
 
 		// "edit"
 		$oListOpt = &$this->ListOptions->Items["edit"];
-		if (TRUE) {
+		if ($Security->IsLoggedIn()) {
 			$oListOpt->Body = "<a class=\"ewRowLink ewEdit\" title=\"" . ew_HtmlTitle($Language->Phrase("EditLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("EditLink")) . "\" href=\"" . ew_HtmlEncode($this->EditUrl) . "\">" . $Language->Phrase("EditLink") . "</a>";
 		} else {
 			$oListOpt->Body = "";
@@ -730,7 +735,7 @@ class cprojects_list extends cprojects {
 
 		// "copy"
 		$oListOpt = &$this->ListOptions->Items["copy"];
-		if (TRUE) {
+		if ($Security->IsLoggedIn()) {
 			$oListOpt->Body = "<a class=\"ewRowLink ewCopy\" title=\"" . ew_HtmlTitle($Language->Phrase("CopyLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("CopyLink")) . "\" href=\"" . ew_HtmlEncode($this->CopyUrl) . "\">" . $Language->Phrase("CopyLink") . "</a>";
 		} else {
 			$oListOpt->Body = "";
@@ -738,7 +743,7 @@ class cprojects_list extends cprojects {
 
 		// "delete"
 		$oListOpt = &$this->ListOptions->Items["delete"];
-		if (TRUE)
+		if ($Security->IsLoggedIn())
 			$oListOpt->Body = "<a class=\"ewRowLink ewDelete\"" . "" . " title=\"" . ew_HtmlTitle($Language->Phrase("DeleteLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("DeleteLink")) . "\" href=\"" . ew_HtmlEncode($this->DeleteUrl) . "\">" . $Language->Phrase("DeleteLink") . "</a>";
 		else
 			$oListOpt->Body = "";
@@ -790,7 +795,7 @@ class cprojects_list extends cprojects {
 		// Add
 		$item = &$option->Add("add");
 		$item->Body = "<a class=\"ewAddEdit ewAdd\" title=\"" . ew_HtmlTitle($Language->Phrase("AddLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("AddLink")) . "\" href=\"" . ew_HtmlEncode($this->AddUrl) . "\">" . $Language->Phrase("AddLink") . "</a>";
-		$item->Visible = ($this->AddUrl <> "");
+		$item->Visible = ($this->AddUrl <> "" && $Security->IsLoggedIn());
 		$option = $options["action"];
 
 		// Set up options default
@@ -1053,7 +1058,8 @@ class cprojects_list extends cprojects {
 		$this->Row_Selected($row);
 		$this->id->setDbValue($rs->fields('id'));
 		$this->title->setDbValue($rs->fields('title'));
-		$this->images->setDbValue($rs->fields('images'));
+		$this->images->Upload->DbValue = $rs->fields('images');
+		$this->images->CurrentValue = $this->images->Upload->DbValue;
 		$this->intro->setDbValue($rs->fields('intro'));
 		$this->full_intro->setDbValue($rs->fields('full_intro'));
 		$this->details->setDbValue($rs->fields('details'));
@@ -1065,7 +1071,7 @@ class cprojects_list extends cprojects {
 		$row = is_array($rs) ? $rs : $rs->fields;
 		$this->id->DbValue = $row['id'];
 		$this->title->DbValue = $row['title'];
-		$this->images->DbValue = $row['images'];
+		$this->images->Upload->DbValue = $row['images'];
 		$this->intro->DbValue = $row['intro'];
 		$this->full_intro->DbValue = $row['full_intro'];
 		$this->details->DbValue = $row['details'];

@@ -246,6 +246,11 @@ class cprojects_delete extends cprojects {
 	//
 	function Page_Init() {
 		global $gsExport, $gsCustomExport, $gsExportFile, $UserProfile, $Language, $Security, $objForm;
+
+		// Security
+		$Security = new cAdvancedSecurity();
+		if (!$Security->IsLoggedIn()) $Security->AutoLogin();
+		if (!$Security->IsLoggedIn()) $this->Page_Terminate(ew_GetUrl("login.php"));
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
 		$this->id->Visible = !$this->IsAdd() && !$this->IsCopy() && !$this->IsGridAdd();
 
@@ -412,7 +417,8 @@ class cprojects_delete extends cprojects {
 		$this->Row_Selected($row);
 		$this->id->setDbValue($rs->fields('id'));
 		$this->title->setDbValue($rs->fields('title'));
-		$this->images->setDbValue($rs->fields('images'));
+		$this->images->Upload->DbValue = $rs->fields('images');
+		$this->images->CurrentValue = $this->images->Upload->DbValue;
 		$this->intro->setDbValue($rs->fields('intro'));
 		$this->full_intro->setDbValue($rs->fields('full_intro'));
 		$this->details->setDbValue($rs->fields('details'));
@@ -424,7 +430,7 @@ class cprojects_delete extends cprojects {
 		$row = is_array($rs) ? $rs : $rs->fields;
 		$this->id->DbValue = $row['id'];
 		$this->title->DbValue = $row['title'];
-		$this->images->DbValue = $row['images'];
+		$this->images->Upload->DbValue = $row['images'];
 		$this->intro->DbValue = $row['intro'];
 		$this->full_intro->DbValue = $row['full_intro'];
 		$this->details->DbValue = $row['details'];

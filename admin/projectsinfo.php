@@ -54,7 +54,9 @@ class cprojects extends cTable {
 		$this->fields['title'] = &$this->title;
 
 		// images
-		$this->images = new cField('projects', 'projects', 'x_images', 'images', '`images`', '`images`', 201, -1, FALSE, '`images`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXTAREA');
+		$this->images = new cField('projects', 'projects', 'x_images', 'images', '`images`', '`images`', 201, -1, TRUE, '`images`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'FILE');
+		$this->images->UploadMultiple = TRUE;
+		$this->images->Upload->UploadMultiple = TRUE;
 		$this->fields['images'] = &$this->images;
 
 		// intro
@@ -528,7 +530,7 @@ class cprojects extends cTable {
 	function LoadListRowValues(&$rs) {
 		$this->id->setDbValue($rs->fields('id'));
 		$this->title->setDbValue($rs->fields('title'));
-		$this->images->setDbValue($rs->fields('images'));
+		$this->images->Upload->DbValue = $rs->fields('images');
 		$this->intro->setDbValue($rs->fields('intro'));
 		$this->full_intro->setDbValue($rs->fields('full_intro'));
 		$this->details->setDbValue($rs->fields('details'));
@@ -558,7 +560,11 @@ class cprojects extends cTable {
 		$this->title->ViewCustomAttributes = "";
 
 		// images
-		$this->images->ViewValue = $this->images->CurrentValue;
+		if (!ew_Empty($this->images->Upload->DbValue)) {
+			$this->images->ViewValue = $this->images->Upload->DbValue;
+		} else {
+			$this->images->ViewValue = "";
+		}
 		$this->images->ViewCustomAttributes = "";
 
 		// intro
@@ -586,6 +592,7 @@ class cprojects extends cTable {
 		// images
 		$this->images->LinkCustomAttributes = "";
 		$this->images->HrefValue = "";
+		$this->images->HrefValue2 = $this->images->UploadPath . $this->images->Upload->DbValue;
 		$this->images->TooltipValue = "";
 
 		// intro
@@ -629,8 +636,13 @@ class cprojects extends cTable {
 		// images
 		$this->images->EditAttrs["class"] = "form-control";
 		$this->images->EditCustomAttributes = "";
-		$this->images->EditValue = $this->images->CurrentValue;
-		$this->images->PlaceHolder = ew_RemoveHtml($this->images->FldCaption());
+		if (!ew_Empty($this->images->Upload->DbValue)) {
+			$this->images->EditValue = $this->images->Upload->DbValue;
+		} else {
+			$this->images->EditValue = "";
+		}
+		if (!ew_Empty($this->images->CurrentValue))
+			$this->images->Upload->FileName = $this->images->CurrentValue;
 
 		// intro
 		$this->intro->EditAttrs["class"] = "form-control";
