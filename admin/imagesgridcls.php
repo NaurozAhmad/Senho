@@ -732,6 +732,8 @@ class cimages_grid extends cimages {
 		global $objForm;
 		if (!ew_Empty($this->image_name->Upload->Value))
 			return FALSE;
+		if ($objForm->HasValue("x_image_detail") && $objForm->HasValue("o_image_detail") && $this->image_detail->CurrentValue <> $this->image_detail->OldValue)
+			return FALSE;
 		return TRUE;
 	}
 
@@ -1018,6 +1020,8 @@ class cimages_grid extends cimages {
 		$this->image_name->Upload->DbValue = NULL;
 		$this->image_name->OldValue = $this->image_name->Upload->DbValue;
 		$this->image_name->Upload->Index = $this->RowIndex;
+		$this->image_detail->CurrentValue = NULL;
+		$this->image_detail->OldValue = $this->image_detail->CurrentValue;
 	}
 
 	// Load form values
@@ -1027,6 +1031,10 @@ class cimages_grid extends cimages {
 		global $objForm;
 		$objForm->FormName = $this->FormName;
 		$this->GetUploadFiles(); // Get upload files
+		if (!$this->image_detail->FldIsDetailKey) {
+			$this->image_detail->setFormValue($objForm->GetValue("x_image_detail"));
+		}
+		$this->image_detail->setOldValue($objForm->GetValue("o_image_detail"));
 		if (!$this->image_id->FldIsDetailKey && $this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
 			$this->image_id->setFormValue($objForm->GetValue("x_image_id"));
 	}
@@ -1036,6 +1044,7 @@ class cimages_grid extends cimages {
 		global $objForm;
 		if ($this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
 			$this->image_id->CurrentValue = $this->image_id->FormValue;
+		$this->image_detail->CurrentValue = $this->image_detail->FormValue;
 	}
 
 	// Load recordset
@@ -1192,11 +1201,20 @@ class cimages_grid extends cimages {
 		}
 		$this->image_name->ViewCustomAttributes = "";
 
+		// image_detail
+		$this->image_detail->ViewValue = $this->image_detail->CurrentValue;
+		$this->image_detail->ViewCustomAttributes = "";
+
 			// image_name
 			$this->image_name->LinkCustomAttributes = "";
 			$this->image_name->HrefValue = "";
 			$this->image_name->HrefValue2 = $this->image_name->UploadPath . $this->image_name->Upload->DbValue;
 			$this->image_name->TooltipValue = "";
+
+			// image_detail
+			$this->image_detail->LinkCustomAttributes = "";
+			$this->image_detail->HrefValue = "";
+			$this->image_detail->TooltipValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_ADD) { // Add row
 
 			// image_name
@@ -1212,11 +1230,20 @@ class cimages_grid extends cimages {
 				$this->image_name->Upload->FileName = $this->image_name->CurrentValue;
 			if (is_numeric($this->RowIndex) && !$this->EventCancelled) ew_RenderUploadField($this->image_name, $this->RowIndex);
 
+			// image_detail
+			$this->image_detail->EditAttrs["class"] = "form-control";
+			$this->image_detail->EditCustomAttributes = "";
+			$this->image_detail->EditValue = ew_HtmlEncode($this->image_detail->CurrentValue);
+			$this->image_detail->PlaceHolder = ew_RemoveHtml($this->image_detail->FldCaption());
+
 			// Edit refer script
 			// image_name
 
 			$this->image_name->HrefValue = "";
 			$this->image_name->HrefValue2 = $this->image_name->UploadPath . $this->image_name->Upload->DbValue;
+
+			// image_detail
+			$this->image_detail->HrefValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_EDIT) { // Edit row
 
 			// image_name
@@ -1232,11 +1259,20 @@ class cimages_grid extends cimages {
 				$this->image_name->Upload->FileName = $this->image_name->CurrentValue;
 			if (is_numeric($this->RowIndex) && !$this->EventCancelled) ew_RenderUploadField($this->image_name, $this->RowIndex);
 
+			// image_detail
+			$this->image_detail->EditAttrs["class"] = "form-control";
+			$this->image_detail->EditCustomAttributes = "";
+			$this->image_detail->EditValue = ew_HtmlEncode($this->image_detail->CurrentValue);
+			$this->image_detail->PlaceHolder = ew_RemoveHtml($this->image_detail->FldCaption());
+
 			// Edit refer script
 			// image_name
 
 			$this->image_name->HrefValue = "";
 			$this->image_name->HrefValue2 = $this->image_name->UploadPath . $this->image_name->Upload->DbValue;
+
+			// image_detail
+			$this->image_detail->HrefValue = "";
 		}
 		if ($this->RowType == EW_ROWTYPE_ADD ||
 			$this->RowType == EW_ROWTYPE_EDIT ||
@@ -1258,6 +1294,9 @@ class cimages_grid extends cimages {
 			return ($gsFormError == "");
 		if ($this->image_name->Upload->FileName == "" && !$this->image_name->Upload->KeepFile) {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->image_name->FldCaption(), $this->image_name->ReqErrMsg));
+		}
+		if (!$this->image_detail->FldIsDetailKey && !is_null($this->image_detail->FormValue) && $this->image_detail->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->image_detail->FldCaption(), $this->image_detail->ReqErrMsg));
 		}
 
 		// Return validate result
@@ -1380,6 +1419,9 @@ class cimages_grid extends cimages {
 					$rsnew['image_name'] = $this->image_name->Upload->FileName;
 				}
 			}
+
+			// image_detail
+			$this->image_detail->SetDbValueDef($rsnew, $this->image_detail->CurrentValue, "", $this->image_detail->ReadOnly);
 			if (!$this->image_name->Upload->KeepFile) {
 				$this->image_name->UploadPath = "/projectimages";
 				if (!ew_Empty($this->image_name->Upload->Value)) {
@@ -1454,6 +1496,9 @@ class cimages_grid extends cimages {
 				$rsnew['image_name'] = $this->image_name->Upload->FileName;
 			}
 		}
+
+		// image_detail
+		$this->image_detail->SetDbValueDef($rsnew, $this->image_detail->CurrentValue, "", FALSE);
 
 		// p_id
 		if ($this->p_id->getSessionValue() <> "") {

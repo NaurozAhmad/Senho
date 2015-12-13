@@ -44,6 +44,9 @@ fimagesgrid.Validate = function() {
 			elm = this.GetElements("fn_x" + infix + "_image_name");
 			if (felm && elm && !ew_HasValue(elm))
 				return this.OnError(felm, "<?php echo ew_JsEncode2(str_replace("%s", $images->image_name->FldCaption(), $images->image_name->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_image_detail");
+			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $images->image_detail->FldCaption(), $images->image_detail->ReqErrMsg)) ?>");
 
 			// Fire Form_CustomValidate event
 			if (!this.Form_CustomValidate(fobj))
@@ -57,6 +60,7 @@ fimagesgrid.Validate = function() {
 fimagesgrid.EmptyRow = function(infix) {
 	var fobj = this.Form;
 	if (ew_ValueChanged(fobj, infix, "image_name", false)) return false;
+	if (ew_ValueChanged(fobj, infix, "image_detail", false)) return false;
 	return true;
 }
 
@@ -153,6 +157,15 @@ $images_grid->ListOptions->Render("header", "left");
 	<?php } else { ?>
 		<th data-name="image_name"><div><div id="elh_images_image_name" class="images_image_name">
 			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $images->image_name->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($images->image_name->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($images->image_name->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+        </div></div></th>
+	<?php } ?>
+<?php } ?>		
+<?php if ($images->image_detail->Visible) { // image_detail ?>
+	<?php if ($images->SortUrl($images->image_detail) == "") { ?>
+		<th data-name="image_detail"><div id="elh_images_image_detail" class="images_image_detail"><div class="ewTableHeaderCaption"><?php echo $images->image_detail->FldCaption() ?></div></div></th>
+	<?php } else { ?>
+		<th data-name="image_detail"><div><div id="elh_images_image_detail" class="images_image_detail">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $images->image_detail->FldCaption() ?></span><span class="ewTableHeaderSort"><?php if ($images->image_detail->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($images->image_detail->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
         </div></div></th>
 	<?php } ?>
 <?php } ?>		
@@ -318,6 +331,37 @@ $images_grid->ListOptions->Render("body", "left", $images_grid->RowCnt);
 <?php if ($images->RowType == EW_ROWTYPE_EDIT || $images->CurrentMode == "edit") { ?>
 <input type="hidden" data-table="images" data-field="x_image_id" name="x<?php echo $images_grid->RowIndex ?>_image_id" id="x<?php echo $images_grid->RowIndex ?>_image_id" value="<?php echo ew_HtmlEncode($images->image_id->CurrentValue) ?>">
 <?php } ?>
+	<?php if ($images->image_detail->Visible) { // image_detail ?>
+		<td data-name="image_detail"<?php echo $images->image_detail->CellAttributes() ?>>
+<?php if ($images->RowType == EW_ROWTYPE_ADD) { // Add record ?>
+<span id="el<?php echo $images_grid->RowCnt ?>_images_image_detail" class="form-group images_image_detail">
+<?php ew_AppendClass($images->image_detail->EditAttrs["class"], "editor"); ?>
+<textarea data-table="images" data-field="x_image_detail" name="x<?php echo $images_grid->RowIndex ?>_image_detail" id="x<?php echo $images_grid->RowIndex ?>_image_detail" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($images->image_detail->getPlaceHolder()) ?>"<?php echo $images->image_detail->EditAttributes() ?>><?php echo $images->image_detail->EditValue ?></textarea>
+<script type="text/javascript">
+ew_CreateEditor("fimagesgrid", "x<?php echo $images_grid->RowIndex ?>_image_detail", 35, 4, <?php echo ($images->image_detail->ReadOnly || FALSE) ? "true" : "false" ?>);
+</script>
+</span>
+<input type="hidden" data-table="images" data-field="x_image_detail" name="o<?php echo $images_grid->RowIndex ?>_image_detail" id="o<?php echo $images_grid->RowIndex ?>_image_detail" value="<?php echo ew_HtmlEncode($images->image_detail->OldValue) ?>">
+<?php } ?>
+<?php if ($images->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
+<span id="el<?php echo $images_grid->RowCnt ?>_images_image_detail" class="form-group images_image_detail">
+<?php ew_AppendClass($images->image_detail->EditAttrs["class"], "editor"); ?>
+<textarea data-table="images" data-field="x_image_detail" name="x<?php echo $images_grid->RowIndex ?>_image_detail" id="x<?php echo $images_grid->RowIndex ?>_image_detail" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($images->image_detail->getPlaceHolder()) ?>"<?php echo $images->image_detail->EditAttributes() ?>><?php echo $images->image_detail->EditValue ?></textarea>
+<script type="text/javascript">
+ew_CreateEditor("fimagesgrid", "x<?php echo $images_grid->RowIndex ?>_image_detail", 35, 4, <?php echo ($images->image_detail->ReadOnly || FALSE) ? "true" : "false" ?>);
+</script>
+</span>
+<?php } ?>
+<?php if ($images->RowType == EW_ROWTYPE_VIEW) { // View record ?>
+<span id="el<?php echo $images_grid->RowCnt ?>_images_image_detail" class="images_image_detail">
+<span<?php echo $images->image_detail->ViewAttributes() ?>>
+<?php echo $images->image_detail->ListViewValue() ?></span>
+</span>
+<input type="hidden" data-table="images" data-field="x_image_detail" name="x<?php echo $images_grid->RowIndex ?>_image_detail" id="x<?php echo $images_grid->RowIndex ?>_image_detail" value="<?php echo ew_HtmlEncode($images->image_detail->FormValue) ?>">
+<input type="hidden" data-table="images" data-field="x_image_detail" name="o<?php echo $images_grid->RowIndex ?>_image_detail" id="o<?php echo $images_grid->RowIndex ?>_image_detail" value="<?php echo ew_HtmlEncode($images->image_detail->OldValue) ?>">
+<?php } ?>
+</td>
+	<?php } ?>
 <?php
 
 // Render list options (body, right)
@@ -377,6 +421,26 @@ $images_grid->ListOptions->Render("body", "left", $images_grid->RowIndex);
 <table id="ft_x<?php echo $images_grid->RowIndex ?>_image_name" class="table table-condensed pull-left ewUploadTable"><tbody class="files"></tbody></table>
 </span>
 <input type="hidden" data-table="images" data-field="x_image_name" name="o<?php echo $images_grid->RowIndex ?>_image_name" id="o<?php echo $images_grid->RowIndex ?>_image_name" value="<?php echo ew_HtmlEncode($images->image_name->OldValue) ?>">
+</td>
+	<?php } ?>
+	<?php if ($images->image_detail->Visible) { // image_detail ?>
+		<td data-name="image_detail">
+<?php if ($images->CurrentAction <> "F") { ?>
+<span id="el$rowindex$_images_image_detail" class="form-group images_image_detail">
+<?php ew_AppendClass($images->image_detail->EditAttrs["class"], "editor"); ?>
+<textarea data-table="images" data-field="x_image_detail" name="x<?php echo $images_grid->RowIndex ?>_image_detail" id="x<?php echo $images_grid->RowIndex ?>_image_detail" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($images->image_detail->getPlaceHolder()) ?>"<?php echo $images->image_detail->EditAttributes() ?>><?php echo $images->image_detail->EditValue ?></textarea>
+<script type="text/javascript">
+ew_CreateEditor("fimagesgrid", "x<?php echo $images_grid->RowIndex ?>_image_detail", 35, 4, <?php echo ($images->image_detail->ReadOnly || FALSE) ? "true" : "false" ?>);
+</script>
+</span>
+<?php } else { ?>
+<span id="el$rowindex$_images_image_detail" class="form-group images_image_detail">
+<span<?php echo $images->image_detail->ViewAttributes() ?>>
+<p class="form-control-static"><?php echo $images->image_detail->ViewValue ?></p></span>
+</span>
+<input type="hidden" data-table="images" data-field="x_image_detail" name="x<?php echo $images_grid->RowIndex ?>_image_detail" id="x<?php echo $images_grid->RowIndex ?>_image_detail" value="<?php echo ew_HtmlEncode($images->image_detail->FormValue) ?>">
+<?php } ?>
+<input type="hidden" data-table="images" data-field="x_image_detail" name="o<?php echo $images_grid->RowIndex ?>_image_detail" id="o<?php echo $images_grid->RowIndex ?>_image_detail" value="<?php echo ew_HtmlEncode($images->image_detail->OldValue) ?>">
 </td>
 	<?php } ?>
 <?php

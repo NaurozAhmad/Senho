@@ -490,11 +490,20 @@ class cimages_delete extends cimages {
 		}
 		$this->image_name->ViewCustomAttributes = "";
 
+		// image_detail
+		$this->image_detail->ViewValue = $this->image_detail->CurrentValue;
+		$this->image_detail->ViewCustomAttributes = "";
+
 			// image_name
 			$this->image_name->LinkCustomAttributes = "";
 			$this->image_name->HrefValue = "";
 			$this->image_name->HrefValue2 = $this->image_name->UploadPath . $this->image_name->Upload->DbValue;
 			$this->image_name->TooltipValue = "";
+
+			// image_detail
+			$this->image_detail->LinkCustomAttributes = "";
+			$this->image_detail->HrefValue = "";
+			$this->image_detail->TooltipValue = "";
 		}
 
 		// Call Row Rendered event
@@ -781,6 +790,9 @@ $images_delete->ShowMessage();
 <?php if ($images->image_name->Visible) { // image_name ?>
 		<th><span id="elh_images_image_name" class="images_image_name"><?php echo $images->image_name->FldCaption() ?></span></th>
 <?php } ?>
+<?php if ($images->image_detail->Visible) { // image_detail ?>
+		<th><span id="elh_images_image_detail" class="images_image_detail"><?php echo $images->image_detail->FldCaption() ?></span></th>
+<?php } ?>
 	</tr>
 	</thead>
 	<tbody>
@@ -808,6 +820,14 @@ while (!$images_delete->Recordset->EOF) {
 <span<?php echo $images->image_name->ViewAttributes() ?>>
 <?php echo ew_GetFileViewTag($images->image_name, $images->image_name->ListViewValue()) ?>
 </span>
+</span>
+</td>
+<?php } ?>
+<?php if ($images->image_detail->Visible) { // image_detail ?>
+		<td<?php echo $images->image_detail->CellAttributes() ?>>
+<span id="el<?php echo $images_delete->RowCnt ?>_images_image_detail" class="images_image_detail">
+<span<?php echo $images->image_detail->ViewAttributes() ?>>
+<?php echo $images->image_detail->ListViewValue() ?></span>
 </span>
 </td>
 <?php } ?>

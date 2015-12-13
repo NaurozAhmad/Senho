@@ -741,6 +741,7 @@ class cimages extends cTable {
 					if ($this->image_id->Exportable) $Doc->ExportCaption($this->image_id);
 					if ($this->p_id->Exportable) $Doc->ExportCaption($this->p_id);
 					if ($this->image_name->Exportable) $Doc->ExportCaption($this->image_name);
+					if ($this->image_detail->Exportable) $Doc->ExportCaption($this->image_detail);
 				}
 				$Doc->EndExportRow();
 			}
@@ -780,6 +781,7 @@ class cimages extends cTable {
 						if ($this->image_id->Exportable) $Doc->ExportField($this->image_id);
 						if ($this->p_id->Exportable) $Doc->ExportField($this->p_id);
 						if ($this->image_name->Exportable) $Doc->ExportField($this->image_name);
+						if ($this->image_detail->Exportable) $Doc->ExportField($this->image_detail);
 					}
 					$Doc->EndExportRow();
 				}

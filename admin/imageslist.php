@@ -948,6 +948,8 @@ class cimages_list extends cimages {
 		global $objForm;
 		if (!ew_Empty($this->image_name->Upload->Value))
 			return FALSE;
+		if ($objForm->HasValue("x_image_detail") && $objForm->HasValue("o_image_detail") && $this->image_detail->CurrentValue <> $this->image_detail->OldValue)
+			return FALSE;
 		return TRUE;
 	}
 
@@ -1240,6 +1242,7 @@ class cimages_list extends cimages {
 			$this->CurrentOrder = ew_StripSlashes(@$_GET["order"]);
 			$this->CurrentOrderType = @$_GET["ordertype"];
 			$this->UpdateSort($this->image_name); // image_name
+			$this->UpdateSort($this->image_detail); // image_detail
 			$this->setStartRecordNumber(1); // Reset start position
 		}
 	}
@@ -1281,6 +1284,7 @@ class cimages_list extends cimages {
 				$sOrderBy = "";
 				$this->setSessionOrderBy($sOrderBy);
 				$this->image_name->setSort("");
+				$this->image_detail->setSort("");
 			}
 
 			// Reset start position
@@ -1765,6 +1769,8 @@ class cimages_list extends cimages {
 	function LoadDefaultValues() {
 		$this->image_name->Upload->DbValue = NULL;
 		$this->image_name->OldValue = $this->image_name->Upload->DbValue;
+		$this->image_detail->CurrentValue = NULL;
+		$this->image_detail->OldValue = $this->image_detail->CurrentValue;
 	}
 
 	// Load basic search values
@@ -1780,6 +1786,10 @@ class cimages_list extends cimages {
 		// Load from form
 		global $objForm;
 		$this->GetUploadFiles(); // Get upload files
+		if (!$this->image_detail->FldIsDetailKey) {
+			$this->image_detail->setFormValue($objForm->GetValue("x_image_detail"));
+		}
+		$this->image_detail->setOldValue($objForm->GetValue("o_image_detail"));
 		if (!$this->image_id->FldIsDetailKey && $this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
 			$this->image_id->setFormValue($objForm->GetValue("x_image_id"));
 	}
@@ -1789,6 +1799,7 @@ class cimages_list extends cimages {
 		global $objForm;
 		if ($this->CurrentAction <> "gridadd" && $this->CurrentAction <> "add")
 			$this->image_id->CurrentValue = $this->image_id->FormValue;
+		$this->image_detail->CurrentValue = $this->image_detail->FormValue;
 	}
 
 	// Load recordset
@@ -1944,11 +1955,20 @@ class cimages_list extends cimages {
 		}
 		$this->image_name->ViewCustomAttributes = "";
 
+		// image_detail
+		$this->image_detail->ViewValue = $this->image_detail->CurrentValue;
+		$this->image_detail->ViewCustomAttributes = "";
+
 			// image_name
 			$this->image_name->LinkCustomAttributes = "";
 			$this->image_name->HrefValue = "";
 			$this->image_name->HrefValue2 = $this->image_name->UploadPath . $this->image_name->Upload->DbValue;
 			$this->image_name->TooltipValue = "";
+
+			// image_detail
+			$this->image_detail->LinkCustomAttributes = "";
+			$this->image_detail->HrefValue = "";
+			$this->image_detail->TooltipValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_ADD) { // Add row
 
 			// image_name
@@ -1964,11 +1984,20 @@ class cimages_list extends cimages {
 				$this->image_name->Upload->FileName = $this->image_name->CurrentValue;
 			if (is_numeric($this->RowIndex) && !$this->EventCancelled) ew_RenderUploadField($this->image_name, $this->RowIndex);
 
+			// image_detail
+			$this->image_detail->EditAttrs["class"] = "form-control";
+			$this->image_detail->EditCustomAttributes = "";
+			$this->image_detail->EditValue = ew_HtmlEncode($this->image_detail->CurrentValue);
+			$this->image_detail->PlaceHolder = ew_RemoveHtml($this->image_detail->FldCaption());
+
 			// Edit refer script
 			// image_name
 
 			$this->image_name->HrefValue = "";
 			$this->image_name->HrefValue2 = $this->image_name->UploadPath . $this->image_name->Upload->DbValue;
+
+			// image_detail
+			$this->image_detail->HrefValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_EDIT) { // Edit row
 
 			// image_name
@@ -1984,11 +2013,20 @@ class cimages_list extends cimages {
 				$this->image_name->Upload->FileName = $this->image_name->CurrentValue;
 			if (is_numeric($this->RowIndex) && !$this->EventCancelled) ew_RenderUploadField($this->image_name, $this->RowIndex);
 
+			// image_detail
+			$this->image_detail->EditAttrs["class"] = "form-control";
+			$this->image_detail->EditCustomAttributes = "";
+			$this->image_detail->EditValue = ew_HtmlEncode($this->image_detail->CurrentValue);
+			$this->image_detail->PlaceHolder = ew_RemoveHtml($this->image_detail->FldCaption());
+
 			// Edit refer script
 			// image_name
 
 			$this->image_name->HrefValue = "";
 			$this->image_name->HrefValue2 = $this->image_name->UploadPath . $this->image_name->Upload->DbValue;
+
+			// image_detail
+			$this->image_detail->HrefValue = "";
 		}
 		if ($this->RowType == EW_ROWTYPE_ADD ||
 			$this->RowType == EW_ROWTYPE_EDIT ||
@@ -2013,6 +2051,9 @@ class cimages_list extends cimages {
 			return ($gsFormError == "");
 		if ($this->image_name->Upload->FileName == "" && !$this->image_name->Upload->KeepFile) {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->image_name->FldCaption(), $this->image_name->ReqErrMsg));
+		}
+		if (!$this->image_detail->FldIsDetailKey && !is_null($this->image_detail->FormValue) && $this->image_detail->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->image_detail->FldCaption(), $this->image_detail->ReqErrMsg));
 		}
 
 		// Return validate result
@@ -2135,6 +2176,9 @@ class cimages_list extends cimages {
 					$rsnew['image_name'] = $this->image_name->Upload->FileName;
 				}
 			}
+
+			// image_detail
+			$this->image_detail->SetDbValueDef($rsnew, $this->image_detail->CurrentValue, "", $this->image_detail->ReadOnly);
 			if (!$this->image_name->Upload->KeepFile) {
 				$this->image_name->UploadPath = "/projectimages";
 				if (!ew_Empty($this->image_name->Upload->Value)) {
@@ -2204,6 +2248,9 @@ class cimages_list extends cimages {
 				$rsnew['image_name'] = $this->image_name->Upload->FileName;
 			}
 		}
+
+		// image_detail
+		$this->image_detail->SetDbValueDef($rsnew, $this->image_detail->CurrentValue, "", FALSE);
 
 		// p_id
 		if ($this->p_id->getSessionValue() <> "") {
@@ -2477,6 +2524,9 @@ fimageslist.Validate = function() {
 			elm = this.GetElements("fn_x" + infix + "_image_name");
 			if (felm && elm && !ew_HasValue(elm))
 				return this.OnError(felm, "<?php echo ew_JsEncode2(str_replace("%s", $images->image_name->FldCaption(), $images->image_name->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_image_detail");
+			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $images->image_detail->FldCaption(), $images->image_detail->ReqErrMsg)) ?>");
 
 			// Fire Form_CustomValidate event
 			if (!this.Form_CustomValidate(fobj))
@@ -2494,6 +2544,7 @@ fimageslist.Validate = function() {
 fimageslist.EmptyRow = function(infix) {
 	var fobj = this.Form;
 	if (ew_ValueChanged(fobj, infix, "image_name", false)) return false;
+	if (ew_ValueChanged(fobj, infix, "image_detail", false)) return false;
 	return true;
 }
 
@@ -2645,6 +2696,15 @@ $images_list->ListOptions->Render("header", "left");
 	<?php } else { ?>
 		<th data-name="image_name"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $images->SortUrl($images->image_name) ?>',1);"><div id="elh_images_image_name" class="images_image_name">
 			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $images->image_name->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($images->image_name->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($images->image_name->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+        </div></div></th>
+	<?php } ?>
+<?php } ?>		
+<?php if ($images->image_detail->Visible) { // image_detail ?>
+	<?php if ($images->SortUrl($images->image_detail) == "") { ?>
+		<th data-name="image_detail"><div id="elh_images_image_detail" class="images_image_detail"><div class="ewTableHeaderCaption"><?php echo $images->image_detail->FldCaption() ?></div></div></th>
+	<?php } else { ?>
+		<th data-name="image_detail"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $images->SortUrl($images->image_detail) ?>',1);"><div id="elh_images_image_detail" class="images_image_detail">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $images->image_detail->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($images->image_detail->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($images->image_detail->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
         </div></div></th>
 	<?php } ?>
 <?php } ?>		
@@ -2812,6 +2872,35 @@ $images_list->ListOptions->Render("body", "left", $images_list->RowCnt);
 <?php if ($images->RowType == EW_ROWTYPE_EDIT || $images->CurrentMode == "edit") { ?>
 <input type="hidden" data-table="images" data-field="x_image_id" name="x<?php echo $images_list->RowIndex ?>_image_id" id="x<?php echo $images_list->RowIndex ?>_image_id" value="<?php echo ew_HtmlEncode($images->image_id->CurrentValue) ?>">
 <?php } ?>
+	<?php if ($images->image_detail->Visible) { // image_detail ?>
+		<td data-name="image_detail"<?php echo $images->image_detail->CellAttributes() ?>>
+<?php if ($images->RowType == EW_ROWTYPE_ADD) { // Add record ?>
+<span id="el<?php echo $images_list->RowCnt ?>_images_image_detail" class="form-group images_image_detail">
+<?php ew_AppendClass($images->image_detail->EditAttrs["class"], "editor"); ?>
+<textarea data-table="images" data-field="x_image_detail" name="x<?php echo $images_list->RowIndex ?>_image_detail" id="x<?php echo $images_list->RowIndex ?>_image_detail" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($images->image_detail->getPlaceHolder()) ?>"<?php echo $images->image_detail->EditAttributes() ?>><?php echo $images->image_detail->EditValue ?></textarea>
+<script type="text/javascript">
+ew_CreateEditor("fimageslist", "x<?php echo $images_list->RowIndex ?>_image_detail", 35, 4, <?php echo ($images->image_detail->ReadOnly || FALSE) ? "true" : "false" ?>);
+</script>
+</span>
+<input type="hidden" data-table="images" data-field="x_image_detail" name="o<?php echo $images_list->RowIndex ?>_image_detail" id="o<?php echo $images_list->RowIndex ?>_image_detail" value="<?php echo ew_HtmlEncode($images->image_detail->OldValue) ?>">
+<?php } ?>
+<?php if ($images->RowType == EW_ROWTYPE_EDIT) { // Edit record ?>
+<span id="el<?php echo $images_list->RowCnt ?>_images_image_detail" class="form-group images_image_detail">
+<?php ew_AppendClass($images->image_detail->EditAttrs["class"], "editor"); ?>
+<textarea data-table="images" data-field="x_image_detail" name="x<?php echo $images_list->RowIndex ?>_image_detail" id="x<?php echo $images_list->RowIndex ?>_image_detail" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($images->image_detail->getPlaceHolder()) ?>"<?php echo $images->image_detail->EditAttributes() ?>><?php echo $images->image_detail->EditValue ?></textarea>
+<script type="text/javascript">
+ew_CreateEditor("fimageslist", "x<?php echo $images_list->RowIndex ?>_image_detail", 35, 4, <?php echo ($images->image_detail->ReadOnly || FALSE) ? "true" : "false" ?>);
+</script>
+</span>
+<?php } ?>
+<?php if ($images->RowType == EW_ROWTYPE_VIEW) { // View record ?>
+<span id="el<?php echo $images_list->RowCnt ?>_images_image_detail" class="images_image_detail">
+<span<?php echo $images->image_detail->ViewAttributes() ?>>
+<?php echo $images->image_detail->ListViewValue() ?></span>
+</span>
+<?php } ?>
+</td>
+	<?php } ?>
 <?php
 
 // Render list options (body, right)
@@ -2871,6 +2960,18 @@ $images_list->ListOptions->Render("body", "left", $images_list->RowIndex);
 <table id="ft_x<?php echo $images_list->RowIndex ?>_image_name" class="table table-condensed pull-left ewUploadTable"><tbody class="files"></tbody></table>
 </span>
 <input type="hidden" data-table="images" data-field="x_image_name" name="o<?php echo $images_list->RowIndex ?>_image_name" id="o<?php echo $images_list->RowIndex ?>_image_name" value="<?php echo ew_HtmlEncode($images->image_name->OldValue) ?>">
+</td>
+	<?php } ?>
+	<?php if ($images->image_detail->Visible) { // image_detail ?>
+		<td data-name="image_detail">
+<span id="el$rowindex$_images_image_detail" class="form-group images_image_detail">
+<?php ew_AppendClass($images->image_detail->EditAttrs["class"], "editor"); ?>
+<textarea data-table="images" data-field="x_image_detail" name="x<?php echo $images_list->RowIndex ?>_image_detail" id="x<?php echo $images_list->RowIndex ?>_image_detail" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($images->image_detail->getPlaceHolder()) ?>"<?php echo $images->image_detail->EditAttributes() ?>><?php echo $images->image_detail->EditValue ?></textarea>
+<script type="text/javascript">
+ew_CreateEditor("fimageslist", "x<?php echo $images_list->RowIndex ?>_image_detail", 35, 4, <?php echo ($images->image_detail->ReadOnly || FALSE) ? "true" : "false" ?>);
+</script>
+</span>
+<input type="hidden" data-table="images" data-field="x_image_detail" name="o<?php echo $images_list->RowIndex ?>_image_detail" id="o<?php echo $images_list->RowIndex ?>_image_detail" value="<?php echo ew_HtmlEncode($images->image_detail->OldValue) ?>">
 </td>
 	<?php } ?>
 <?php
