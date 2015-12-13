@@ -6,6 +6,7 @@ ob_start(); // Turn on output buffering
 <?php include_once ((EW_USE_ADODB) ? "adodb5/adodb.inc.php" : "ewmysql12.php") ?>
 <?php include_once "phpfn12.php" ?>
 <?php include_once "imagesinfo.php" ?>
+<?php include_once "projectsinfo.php" ?>
 <?php include_once "userfn12.php" ?>
 <?php
 
@@ -226,6 +227,9 @@ class cimages_add extends cimages {
 			$GLOBALS["Table"] = &$GLOBALS["images"];
 		}
 
+		// Table object (projects)
+		if (!isset($GLOBALS['projects'])) $GLOBALS['projects'] = new cprojects();
+
 		// Page ID
 		if (!defined("EW_PAGE_ID"))
 			define("EW_PAGE_ID", 'add', TRUE);
@@ -342,6 +346,9 @@ class cimages_add extends cimages {
 	//
 	function Page_Main() {
 		global $objForm, $Language, $gsFormError;
+
+		// Set up master/detail parameters
+		$this->SetUpMasterParms();
 
 		// Process form if post back
 		if (@$_POST["a_add"] <> "") {
@@ -601,6 +608,29 @@ class cimages_add extends cimages {
 			// p_id
 			$this->p_id->EditAttrs["class"] = "form-control";
 			$this->p_id->EditCustomAttributes = "";
+			if ($this->p_id->getSessionValue() <> "") {
+				$this->p_id->CurrentValue = $this->p_id->getSessionValue();
+			if (strval($this->p_id->CurrentValue) <> "") {
+				$sFilterWrk = "`id`" . ew_SearchString("=", $this->p_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+			$sSqlWrk = "SELECT `id`, `title` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `projects`";
+			$sWhereWrk = "";
+			ew_AddFilter($sWhereWrk, $sFilterWrk);
+			$this->Lookup_Selecting($this->p_id, $sWhereWrk); // Call Lookup selecting
+			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+				$rswrk = Conn()->Execute($sSqlWrk);
+				if ($rswrk && !$rswrk->EOF) { // Lookup values found
+					$arwrk = array();
+					$arwrk[1] = $rswrk->fields('DispFld');
+					$this->p_id->ViewValue = $this->p_id->DisplayValue($arwrk);
+					$rswrk->Close();
+				} else {
+					$this->p_id->ViewValue = $this->p_id->CurrentValue;
+				}
+			} else {
+				$this->p_id->ViewValue = NULL;
+			}
+			$this->p_id->ViewCustomAttributes = "";
+			} else {
 			if (trim(strval($this->p_id->CurrentValue)) == "") {
 				$sFilterWrk = "0=1";
 			} else {
@@ -616,6 +646,7 @@ class cimages_add extends cimages {
 			if ($rswrk) $rswrk->Close();
 			array_unshift($arwrk, array("", $Language->Phrase("PleaseSelect"), "", "", "", "", "", "", ""));
 			$this->p_id->EditValue = $arwrk;
+			}
 
 			// image_name
 			$this->image_name->EditAttrs["class"] = "form-control";
@@ -766,6 +797,48 @@ class cimages_add extends cimages {
 		// image_name
 		ew_CleanUploadTempPath($this->image_name, $this->image_name->Upload->Index);
 		return $AddRow;
+	}
+
+	// Set up master/detail based on QueryString
+	function SetUpMasterParms() {
+		$bValidMaster = FALSE;
+
+		// Get the keys for master table
+		if (isset($_GET[EW_TABLE_SHOW_MASTER])) {
+			$sMasterTblVar = $_GET[EW_TABLE_SHOW_MASTER];
+			if ($sMasterTblVar == "") {
+				$bValidMaster = TRUE;
+				$this->DbMasterFilter = "";
+				$this->DbDetailFilter = "";
+			}
+			if ($sMasterTblVar == "projects") {
+				$bValidMaster = TRUE;
+				if (@$_GET["fk_id"] <> "") {
+					$GLOBALS["projects"]->id->setQueryStringValue($_GET["fk_id"]);
+					$this->p_id->setQueryStringValue($GLOBALS["projects"]->id->QueryStringValue);
+					$this->p_id->setSessionValue($this->p_id->QueryStringValue);
+					if (!is_numeric($GLOBALS["projects"]->id->QueryStringValue)) $bValidMaster = FALSE;
+				} else {
+					$bValidMaster = FALSE;
+				}
+			}
+		}
+		if ($bValidMaster) {
+
+			// Save current master table
+			$this->setCurrentMasterTable($sMasterTblVar);
+
+			// Reset start record counter (new master key)
+			$this->StartRec = 1;
+			$this->setStartRecordNumber($this->StartRec);
+
+			// Clear previous master key from Session
+			if ($sMasterTblVar <> "projects") {
+				if ($this->p_id->QueryStringValue == "") $this->p_id->setSessionValue("");
+			}
+		}
+		$this->DbMasterFilter = $this->GetMasterFilter(); // Get master filter
+		$this->DbDetailFilter = $this->GetDetailFilter(); // Get detail filter
 	}
 
 	// Set up Breadcrumb
@@ -957,6 +1030,13 @@ $images_add->ShowMessage();
 	<div id="r_p_id" class="form-group">
 		<label id="elh_images_p_id" for="x_p_id" class="col-sm-2 control-label ewLabel"><?php echo $images->p_id->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
 		<div class="col-sm-10"><div<?php echo $images->p_id->CellAttributes() ?>>
+<?php if ($images->p_id->getSessionValue() <> "") { ?>
+<span id="el_images_p_id">
+<span<?php echo $images->p_id->ViewAttributes() ?>>
+<p class="form-control-static"><?php echo $images->p_id->ViewValue ?></p></span>
+</span>
+<input type="hidden" id="x_p_id" name="x_p_id" value="<?php echo ew_HtmlEncode($images->p_id->CurrentValue) ?>">
+<?php } else { ?>
 <span id="el_images_p_id">
 <select data-table="images" data-field="x_p_id" data-value-separator="<?php echo ew_HtmlEncode(is_array($images->p_id->DisplayValueSeparator) ? json_encode($images->p_id->DisplayValueSeparator) : $images->p_id->DisplayValueSeparator) ?>" id="x_p_id" name="x_p_id"<?php echo $images->p_id->EditAttributes() ?>>
 <?php
@@ -990,6 +1070,7 @@ if ($sSqlWrk <> "") $images->p_id->LookupFilters["s"] .= $sSqlWrk;
 ?>
 <input type="hidden" name="s_x_p_id" id="s_x_p_id" value="<?php echo $images->p_id->LookupFilterQuery() ?>">
 </span>
+<?php } ?>
 <?php echo $images->p_id->CustomMsg ?></div></div>
 	</div>
 <?php } ?>

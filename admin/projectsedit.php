@@ -6,6 +6,7 @@ ob_start(); // Turn on output buffering
 <?php include_once ((EW_USE_ADODB) ? "adodb5/adodb.inc.php" : "ewmysql12.php") ?>
 <?php include_once "phpfn12.php" ?>
 <?php include_once "projectsinfo.php" ?>
+<?php include_once "imagesgridcls.php" ?>
 <?php include_once "userfn12.php" ?>
 <?php
 
@@ -272,6 +273,14 @@ class cprojects_edit extends cprojects {
 
 		// Process auto fill
 		if (@$_POST["ajax"] == "autofill") {
+
+			// Process auto fill for detail table 'images'
+			if (@$_POST["grid"] == "fimagesgrid") {
+				if (!isset($GLOBALS["images_grid"])) $GLOBALS["images_grid"] = new cimages_grid;
+				$GLOBALS["images_grid"]->Page_Init();
+				$this->Page_Terminate();
+				exit();
+			}
 			$results = $this->GetAutoFill(@$_POST["name"], @$_POST["q"]);
 			if ($results) {
 
@@ -352,6 +361,9 @@ class cprojects_edit extends cprojects {
 		if (@$_POST["a_edit"] <> "") {
 			$this->CurrentAction = $_POST["a_edit"]; // Get action code
 			$this->LoadFormValues(); // Get form values
+
+			// Set up detail parameters
+			$this->SetUpDetailParms();
 		} else {
 			$this->CurrentAction = "I"; // Default action is display
 		}
@@ -375,17 +387,26 @@ class cprojects_edit extends cprojects {
 					if ($this->getFailureMessage() == "") $this->setFailureMessage($Language->Phrase("NoRecord")); // No record found
 					$this->Page_Terminate("projectslist.php"); // No matching record, return to list
 				}
+
+				// Set up detail parameters
+				$this->SetUpDetailParms();
 				break;
 			Case "U": // Update
 				$this->SendEmail = TRUE; // Send email on update success
 				if ($this->EditRow()) { // Update record based on key
 					if ($this->getSuccessMessage() == "")
 						$this->setSuccessMessage($Language->Phrase("UpdateSuccess")); // Update success
-					$sReturnUrl = $this->getReturnUrl();
+					if ($this->getCurrentDetailTable() <> "") // Master/detail edit
+						$sReturnUrl = $this->GetViewUrl(EW_TABLE_SHOW_DETAIL . "=" . $this->getCurrentDetailTable()); // Master/Detail view page
+					else
+						$sReturnUrl = $this->getReturnUrl();
 					$this->Page_Terminate($sReturnUrl); // Return to caller
 				} else {
 					$this->EventCancelled = TRUE; // Event cancelled
 					$this->RestoreFormValues(); // Restore form values if update failed
+
+					// Set up detail parameters
+					$this->SetUpDetailParms();
 				}
 		}
 
@@ -730,6 +751,13 @@ class cprojects_edit extends cprojects {
 			ew_AddMessage($gsFormError, str_replace("%s", $this->details->FldCaption(), $this->details->ReqErrMsg));
 		}
 
+		// Validate detail grid
+		$DetailTblVar = explode(",", $this->getCurrentDetailTable());
+		if (in_array("images", $DetailTblVar) && $GLOBALS["images"]->DetailEdit) {
+			if (!isset($GLOBALS["images_grid"])) $GLOBALS["images_grid"] = new cimages_grid(); // get detail page object
+			$GLOBALS["images_grid"]->ValidateGridForm();
+		}
+
 		// Return validate result
 		$ValidateForm = ($gsFormError == "");
 
@@ -757,6 +785,10 @@ class cprojects_edit extends cprojects {
 		if ($rs->EOF) {
 			$EditRow = FALSE; // Update Failed
 		} else {
+
+			// Begin transaction
+			if ($this->getCurrentDetailTable() <> "")
+				$conn->BeginTrans();
 
 			// Save old values
 			$rsold = &$rs->fields;
@@ -812,6 +844,24 @@ class cprojects_edit extends cprojects {
 						}
 					}
 				}
+
+				// Update detail records
+				if ($EditRow) {
+					$DetailTblVar = explode(",", $this->getCurrentDetailTable());
+					if (in_array("images", $DetailTblVar) && $GLOBALS["images"]->DetailEdit) {
+						if (!isset($GLOBALS["images_grid"])) $GLOBALS["images_grid"] = new cimages_grid(); // Get detail page object
+						$EditRow = $GLOBALS["images_grid"]->GridUpdate();
+					}
+				}
+
+				// Commit/Rollback transaction
+				if ($this->getCurrentDetailTable() <> "") {
+					if ($EditRow) {
+						$conn->CommitTrans(); // Commit transaction
+					} else {
+						$conn->RollbackTrans(); // Rollback transaction
+					}
+				}
 			} else {
 				if ($this->getSuccessMessage() <> "" || $this->getFailureMessage() <> "") {
 
@@ -834,6 +884,36 @@ class cprojects_edit extends cprojects {
 		// images
 		ew_CleanUploadTempPath($this->images, $this->images->Upload->Index);
 		return $EditRow;
+	}
+
+	// Set up detail parms based on QueryString
+	function SetUpDetailParms() {
+
+		// Get the keys for master table
+		if (isset($_GET[EW_TABLE_SHOW_DETAIL])) {
+			$sDetailTblVar = $_GET[EW_TABLE_SHOW_DETAIL];
+			$this->setCurrentDetailTable($sDetailTblVar);
+		} else {
+			$sDetailTblVar = $this->getCurrentDetailTable();
+		}
+		if ($sDetailTblVar <> "") {
+			$DetailTblVar = explode(",", $sDetailTblVar);
+			if (in_array("images", $DetailTblVar)) {
+				if (!isset($GLOBALS["images_grid"]))
+					$GLOBALS["images_grid"] = new cimages_grid;
+				if ($GLOBALS["images_grid"]->DetailEdit) {
+					$GLOBALS["images_grid"]->CurrentMode = "edit";
+					$GLOBALS["images_grid"]->CurrentAction = "gridedit";
+
+					// Save current master table to detail table
+					$GLOBALS["images_grid"]->setCurrentMasterTable($this->TableVar);
+					$GLOBALS["images_grid"]->setStartRecordNumber(1);
+					$GLOBALS["images_grid"]->p_id->FldIsDetailKey = TRUE;
+					$GLOBALS["images_grid"]->p_id->CurrentValue = $this->id->CurrentValue;
+					$GLOBALS["images_grid"]->p_id->setSessionValue($GLOBALS["images_grid"]->p_id->CurrentValue);
+				}
+			}
+		}
 	}
 
 	// Set up Breadcrumb
@@ -1122,6 +1202,14 @@ ew_CreateEditor("fprojectsedit", "x_details", 35, 4, <?php echo ($projects->deta
 	</div>
 <?php } ?>
 </div>
+<?php
+	if (in_array("images", explode(",", $projects->getCurrentDetailTable())) && $images->DetailEdit) {
+?>
+<?php if ($projects->getCurrentDetailTable() <> "") { ?>
+<h4 class="ewDetailCaption"><?php echo $Language->TablePhrase("images", "TblCaption") ?></h4>
+<?php } ?>
+<?php include_once "imagesgrid.php" ?>
+<?php } ?>
 <div class="form-group">
 	<div class="col-sm-offset-2 col-sm-10">
 <button class="btn btn-primary ewButton" name="btnAction" id="btnAction" type="submit"><?php echo $Language->Phrase("SaveBtn") ?></button>
