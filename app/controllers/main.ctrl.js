@@ -1,0 +1,15 @@
+senhoApp.controller('MainCtrl', function ($log, $scope, apiService, $sce) {
+	$log.log('Hello from your Controller: MainCtrl in module main:. This is your controller:', this);
+	$scope.promise = apiService.getProjects();
+	$scope.promise.then(function (data) {
+		$scope.projects = data.data;
+		console.log('Length is: ' + $scope.projects.length);
+		apiService.setProjects($scope.projects);
+	});
+	$scope.promise.catch(function () {
+		console.log('Failed to get projects');
+	});
+	$scope.renderHTML = function (data) {
+		return $sce.trustAsHtml(data);
+	};
+});

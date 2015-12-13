@@ -1,30 +1,19 @@
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 	grunt.initConfig({
 
 		pkg: grunt.file.readJSON('package.json'),
 
-		uglify: {
-			options: {
-				mangle: false
-			},
-			my_target: {
-				files: {
-					'js/app.min.js': [
-						'js/**/*.js',
-						'!js/app.min.js'
-					]
-				}
-			}
-		},
 		concat: {
 			dist: {
-				src: ['index-header.html', 'templates/*.html', 'templates/**/*.html', 'index-footer.html'],
-				dest: 'index.html',
+				files: {
+					'index.html': ['index-header.html', 'templates/*.html', 'templates/**/*.html', 'index-footer.html'],
+					'app/app.js': ['app/main.js', 'app/services/*.js', 'app/controllers/*.js']
+				}
 			},
 		},
 		watch: {
 			scripts: {
-				files: ['css/*.*', 'js/**/*.js', '!js/app.min.js', '!css/*.min.css', 'templates/*.html', 'templates/**/*.html', '*.html', '!index.html'],
+				files: ['css/*.*', 'app/**/*.*', '!app/app.js', 'index-header.html', 'index-footer.html'],
 				tasks: ['concat'],
 				options: {
 					interrupt: true,

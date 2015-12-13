@@ -1,0 +1,46 @@
+<!-- ============================ Hero Image =========================== -->
+<section id="hero" class="scrollme">
+    <div class="container-fluid element-img" style="background: url(img/senho/parallax.jpg) no-repeat center center fixed">
+        <div class="row">
+            <div class="col-xs-12 col-sm-8 col-sm-offset-2 col-md-8 col-md-offset-2 vertical-align cover boost text-center">
+                <div class="center-me animateme" data-when="exit" data-from="0" data-to="0.6" data-opacity="0" data-translatey="100">
+                    <div>
+                        <div>
+                            <img src="img/senho/logo-icon.png">
+                        </div>
+                        <h2>Welcome to Senho</h2>
+                        <p>There are many solutions to a problem. We work tirelessly to find the solution that is closest to human nature.</p>
+                        <!--We work with educational institutes, government agencies and NGOs to find solutions to real-world problems.-->
+                        <!--Currently, I work as an interactive designer. Whether it's crafting a design, UX, or animation, I'll tirelessly perfect each detail.-->
+                        <!--<div style="margin-top: 40px;">
+                            	<img src="img/global/cursor-down.png" class="animated long infinite bounce" style="width: 40px;">
+                            </div>-->
+                    </div>
+                </div>
+                <!-- // .center-me .text-center -->
+            </div>
+            <!-- // .col-md-12 -->
+        </div>
+        <!-- // .row -->
+        <div class="herofade beige-dk"></div>
+    </div>
+</section>
+<!-- Height spacing helper -->
+<div class="heightblock"></div>
+<!-- // End height spacing helper -->
+<script type="text/javascript">
+var resizeHero = function() {
+    var hero = $(".cover,.heightblock"),
+        window1 = $(window);
+    hero.css({
+        "height": window1.height()
+    });
+};
+
+resizeHero();
+
+$(window).resize(function() {
+    resizeHero();
+});
+</script>
+<!-- ============================ END Hero Image =========================== -->
