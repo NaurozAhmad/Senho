@@ -6,14 +6,13 @@ module.exports = function (grunt) {
 		concat: {
 			dist: {
 				files: {
-					'index.html': ['index-header.html', 'templates/*.html', 'templates/**/*.html', 'index-footer.html'],
 					'app/app.js': ['app/main.js', 'app/services/*.js', 'app/controllers/*.js']
 				}
 			},
 		},
 		watch: {
 			scripts: {
-				files: ['css/*.*', 'app/**/*.*', '!app/app.js', 'index-header.html', 'index-footer.html'],
+				files: ['css/*.*', 'app/**/*.*', '!app/app.js', 'index.html'],
 				tasks: ['concat'],
 				options: {
 					interrupt: true,

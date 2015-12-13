@@ -12,4 +12,16 @@ senhoApp.controller('MainCtrl', function ($log, $scope, apiService, $sce) {
 	$scope.renderHTML = function (data) {
 		return $sce.trustAsHtml(data);
 	};
+	$scope.sendMessage = function () {
+		$.ajax({
+			url: 'includes/contact-form/phpmailer.php',
+			type: 'POST',
+			data: {
+				email: $('#name').val(),
+				message: $('#message').val()
+			}
+		}).done(function (data) {
+			alert(JSON.stringify(data));
+		});
+	}
 });

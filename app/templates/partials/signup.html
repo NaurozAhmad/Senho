@@ -9,9 +9,9 @@
                 <p>Contact us if you have an awesome idea, want a quotation or just to say hi.</p>
                 <div>
                     <form id="mc-form">
-                        <input id="mc-email" type="email" class="form-control" placeholder="Enter your email">
-                        <textarea class="form-control" placeholder="Write your message."></textarea>
-                        <button type="submit" class="btn signup">Send</button>
+                        <input id="email" type="email" class="form-control" placeholder="Enter your email">
+                        <textarea class="form-control" id="message" placeholder="Write your message."></textarea>
+                        <button type="submit" ng-click="sendMessage()" class="btn signup">Send</button>
                         <!--<label for="mc-email" class="status"></label>-->
                     </form>
                 </div>
