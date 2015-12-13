@@ -5,7 +5,7 @@ ob_start(); // Turn on output buffering
 <?php include_once "ewcfg12.php" ?>
 <?php include_once ((EW_USE_ADODB) ? "adodb5/adodb.inc.php" : "ewmysql12.php") ?>
 <?php include_once "phpfn12.php" ?>
-<?php include_once "projectsinfo.php" ?>
+<?php include_once "imagesinfo.php" ?>
 <?php include_once "userfn12.php" ?>
 <?php
 
@@ -13,9 +13,9 @@ ob_start(); // Turn on output buffering
 // Page class
 //
 
-$projects_view = NULL; // Initialize page object first
+$images_view = NULL; // Initialize page object first
 
-class cprojects_view extends cprojects {
+class cimages_view extends cimages {
 
 	// Page ID
 	var $PageID = 'view';
@@ -24,10 +24,10 @@ class cprojects_view extends cprojects {
 	var $ProjectID = "{D635DDF5-EC98-4B6F-806D-28D8D9C856B8}";
 
 	// Table name
-	var $TableName = 'projects';
+	var $TableName = 'images';
 
 	// Page object name
-	var $PageObjName = 'projects_view';
+	var $PageObjName = 'images_view';
 
 	// Page name
 	function PageName() {
@@ -252,15 +252,15 @@ class cprojects_view extends cprojects {
 		// Parent constuctor
 		parent::__construct();
 
-		// Table object (projects)
-		if (!isset($GLOBALS["projects"]) || get_class($GLOBALS["projects"]) == "cprojects") {
-			$GLOBALS["projects"] = &$this;
-			$GLOBALS["Table"] = &$GLOBALS["projects"];
+		// Table object (images)
+		if (!isset($GLOBALS["images"]) || get_class($GLOBALS["images"]) == "cimages") {
+			$GLOBALS["images"] = &$this;
+			$GLOBALS["Table"] = &$GLOBALS["images"];
 		}
 		$KeyUrl = "";
-		if (@$_GET["id"] <> "") {
-			$this->RecKey["id"] = $_GET["id"];
-			$KeyUrl .= "&amp;id=" . urlencode($this->RecKey["id"]);
+		if (@$_GET["image_id"] <> "") {
+			$this->RecKey["image_id"] = $_GET["image_id"];
+			$KeyUrl .= "&amp;image_id=" . urlencode($this->RecKey["image_id"]);
 		}
 		$this->ExportPrintUrl = $this->PageUrl() . "export=print" . $KeyUrl;
 		$this->ExportHtmlUrl = $this->PageUrl() . "export=html" . $KeyUrl;
@@ -276,7 +276,7 @@ class cprojects_view extends cprojects {
 
 		// Table name (for backward compatibility)
 		if (!defined("EW_TABLE_NAME"))
-			define("EW_TABLE_NAME", 'projects', TRUE);
+			define("EW_TABLE_NAME", 'images', TRUE);
 
 		// Start timer
 		if (!isset($GLOBALS["gTimer"])) $GLOBALS["gTimer"] = new cTimer();
@@ -309,7 +309,7 @@ class cprojects_view extends cprojects {
 		if (!$Security->IsLoggedIn()) $Security->AutoLogin();
 		if (!$Security->IsLoggedIn()) $this->Page_Terminate(ew_GetUrl("login.php"));
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
-		$this->id->Visible = !$this->IsAdd() && !$this->IsCopy() && !$this->IsGridAdd();
+		$this->image_id->Visible = !$this->IsAdd() && !$this->IsCopy() && !$this->IsGridAdd();
 
 		// Global Page Loading event (in userfn*.php)
 		Page_Loading();
@@ -341,13 +341,13 @@ class cprojects_view extends cprojects {
 		Page_Unloaded();
 
 		// Export
-		global $EW_EXPORT, $projects;
+		global $EW_EXPORT, $images;
 		if ($this->CustomExport <> "" && $this->CustomExport == $this->Export && array_key_exists($this->CustomExport, $EW_EXPORT)) {
 				$sContent = ob_get_contents();
 			if ($gsExportFile == "") $gsExportFile = $this->TableVar;
 			$class = $EW_EXPORT[$this->CustomExport];
 			if (class_exists($class)) {
-				$doc = new $class($projects);
+				$doc = new $class($images);
 				$doc->Text = $sContent;
 				if ($this->Export == "email")
 					echo $this->ExportEmail($doc->Text);
@@ -395,14 +395,14 @@ class cprojects_view extends cprojects {
 		if ($this->Export == "")
 			$this->SetupBreadcrumb();
 		if ($this->IsPageRequest()) { // Validate request
-			if (@$_GET["id"] <> "") {
-				$this->id->setQueryStringValue($_GET["id"]);
-				$this->RecKey["id"] = $this->id->QueryStringValue;
-			} elseif (@$_POST["id"] <> "") {
-				$this->id->setFormValue($_POST["id"]);
-				$this->RecKey["id"] = $this->id->FormValue;
+			if (@$_GET["image_id"] <> "") {
+				$this->image_id->setQueryStringValue($_GET["image_id"]);
+				$this->RecKey["image_id"] = $this->image_id->QueryStringValue;
+			} elseif (@$_POST["image_id"] <> "") {
+				$this->image_id->setFormValue($_POST["image_id"]);
+				$this->RecKey["image_id"] = $this->image_id->FormValue;
 			} else {
-				$sReturnUrl = "projectslist.php"; // Return to list
+				$sReturnUrl = "imageslist.php"; // Return to list
 			}
 
 			// Get action
@@ -412,11 +412,11 @@ class cprojects_view extends cprojects {
 					if (!$this->LoadRow()) { // Load record based on key
 						if ($this->getSuccessMessage() == "" && $this->getFailureMessage() == "")
 							$this->setFailureMessage($Language->Phrase("NoRecord")); // Set no record message
-						$sReturnUrl = "projectslist.php"; // No matching record, return to list
+						$sReturnUrl = "imageslist.php"; // No matching record, return to list
 					}
 			}
 		} else {
-			$sReturnUrl = "projectslist.php"; // Not page request, return to list
+			$sReturnUrl = "imageslist.php"; // Not page request, return to list
 		}
 		if ($sReturnUrl <> "")
 			$this->Page_Terminate($sReturnUrl);
@@ -529,27 +529,21 @@ class cprojects_view extends cprojects {
 		// Call Row Selected event
 		$row = &$rs->fields;
 		$this->Row_Selected($row);
-		$this->id->setDbValue($rs->fields('id'));
-		$this->title->setDbValue($rs->fields('title'));
-		$this->images->Upload->DbValue = $rs->fields('images');
-		$this->images->CurrentValue = $this->images->Upload->DbValue;
-		$this->intro->setDbValue($rs->fields('intro'));
-		$this->full_intro->setDbValue($rs->fields('full_intro'));
-		$this->details->setDbValue($rs->fields('details'));
-		$this->livelink->setDbValue($rs->fields('livelink'));
+		$this->image_id->setDbValue($rs->fields('image_id'));
+		$this->p_id->setDbValue($rs->fields('p_id'));
+		$this->image_name->Upload->DbValue = $rs->fields('image_name');
+		$this->image_name->CurrentValue = $this->image_name->Upload->DbValue;
+		$this->image_detail->setDbValue($rs->fields('image_detail'));
 	}
 
 	// Load DbValue from recordset
 	function LoadDbValues(&$rs) {
 		if (!$rs || !is_array($rs) && $rs->EOF) return;
 		$row = is_array($rs) ? $rs : $rs->fields;
-		$this->id->DbValue = $row['id'];
-		$this->title->DbValue = $row['title'];
-		$this->images->Upload->DbValue = $row['images'];
-		$this->intro->DbValue = $row['intro'];
-		$this->full_intro->DbValue = $row['full_intro'];
-		$this->details->DbValue = $row['details'];
-		$this->livelink->DbValue = $row['livelink'];
+		$this->image_id->DbValue = $row['image_id'];
+		$this->p_id->DbValue = $row['p_id'];
+		$this->image_name->Upload->DbValue = $row['image_name'];
+		$this->image_detail->DbValue = $row['image_detail'];
 	}
 
 	// Render row values based on field settings
@@ -568,84 +562,72 @@ class cprojects_view extends cprojects {
 		$this->Row_Rendering();
 
 		// Common render codes for all row types
-		// id
-		// title
-		// images
-		// intro
-		// full_intro
-		// details
-		// livelink
+		// image_id
+		// p_id
+		// image_name
+		// image_detail
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
-		// id
-		$this->id->ViewValue = $this->id->CurrentValue;
-		$this->id->ViewCustomAttributes = "";
+		// image_id
+		$this->image_id->ViewValue = $this->image_id->CurrentValue;
+		$this->image_id->ViewCustomAttributes = "";
 
-		// title
-		$this->title->ViewValue = $this->title->CurrentValue;
-		$this->title->ViewCustomAttributes = "";
-
-		// images
-		$this->images->UploadPath = "/uploads";
-		if (!ew_Empty($this->images->Upload->DbValue)) {
-			$this->images->ViewValue = $this->images->Upload->DbValue;
+		// p_id
+		if (strval($this->p_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->p_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `title` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `projects`";
+		$sWhereWrk = "";
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->p_id, $sWhereWrk); // Call Lookup selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$this->p_id->ViewValue = $this->p_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->p_id->ViewValue = $this->p_id->CurrentValue;
+			}
 		} else {
-			$this->images->ViewValue = "";
+			$this->p_id->ViewValue = NULL;
 		}
-		$this->images->ViewCustomAttributes = "";
+		$this->p_id->ViewCustomAttributes = "";
 
-		// intro
-		$this->intro->ViewValue = $this->intro->CurrentValue;
-		$this->intro->ViewCustomAttributes = "";
+		// image_name
+		$this->image_name->UploadPath = "/projectimages";
+		if (!ew_Empty($this->image_name->Upload->DbValue)) {
+			$this->image_name->ViewValue = $this->image_name->Upload->DbValue;
+		} else {
+			$this->image_name->ViewValue = "";
+		}
+		$this->image_name->ViewCustomAttributes = "";
 
-		// full_intro
-		$this->full_intro->ViewValue = $this->full_intro->CurrentValue;
-		$this->full_intro->ViewCustomAttributes = "";
+		// image_detail
+		$this->image_detail->ViewValue = $this->image_detail->CurrentValue;
+		$this->image_detail->ViewCustomAttributes = "";
 
-		// details
-		$this->details->ViewValue = $this->details->CurrentValue;
-		$this->details->ViewCustomAttributes = "";
+			// image_id
+			$this->image_id->LinkCustomAttributes = "";
+			$this->image_id->HrefValue = "";
+			$this->image_id->TooltipValue = "";
 
-		// livelink
-		$this->livelink->ViewValue = $this->livelink->CurrentValue;
-		$this->livelink->ViewCustomAttributes = "";
+			// p_id
+			$this->p_id->LinkCustomAttributes = "";
+			$this->p_id->HrefValue = "";
+			$this->p_id->TooltipValue = "";
 
-			// id
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-			$this->id->TooltipValue = "";
+			// image_name
+			$this->image_name->LinkCustomAttributes = "";
+			$this->image_name->HrefValue = "";
+			$this->image_name->HrefValue2 = $this->image_name->UploadPath . $this->image_name->Upload->DbValue;
+			$this->image_name->TooltipValue = "";
 
-			// title
-			$this->title->LinkCustomAttributes = "";
-			$this->title->HrefValue = "";
-			$this->title->TooltipValue = "";
-
-			// images
-			$this->images->LinkCustomAttributes = "";
-			$this->images->HrefValue = "";
-			$this->images->HrefValue2 = $this->images->UploadPath . $this->images->Upload->DbValue;
-			$this->images->TooltipValue = "";
-
-			// intro
-			$this->intro->LinkCustomAttributes = "";
-			$this->intro->HrefValue = "";
-			$this->intro->TooltipValue = "";
-
-			// full_intro
-			$this->full_intro->LinkCustomAttributes = "";
-			$this->full_intro->HrefValue = "";
-			$this->full_intro->TooltipValue = "";
-
-			// details
-			$this->details->LinkCustomAttributes = "";
-			$this->details->HrefValue = "";
-			$this->details->TooltipValue = "";
-
-			// livelink
-			$this->livelink->LinkCustomAttributes = "";
-			$this->livelink->HrefValue = "";
-			$this->livelink->TooltipValue = "";
+			// image_detail
+			$this->image_detail->LinkCustomAttributes = "";
+			$this->image_detail->HrefValue = "";
+			$this->image_detail->TooltipValue = "";
 		}
 
 		// Call Row Rendered event
@@ -658,7 +640,7 @@ class cprojects_view extends cprojects {
 		global $Breadcrumb, $Language;
 		$Breadcrumb = new cBreadcrumb();
 		$url = substr(ew_CurrentUrl(), strrpos(ew_CurrentUrl(), "/")+1);
-		$Breadcrumb->Add("list", $this->TableVar, "projectslist.php", "", $this->TableVar, TRUE);
+		$Breadcrumb->Add("list", $this->TableVar, "imageslist.php", "", $this->TableVar, TRUE);
 		$PageId = "view";
 		$Breadcrumb->Add("view", $PageId, $url);
 	}
@@ -754,29 +736,29 @@ class cprojects_view extends cprojects {
 <?php
 
 // Create page object
-if (!isset($projects_view)) $projects_view = new cprojects_view();
+if (!isset($images_view)) $images_view = new cimages_view();
 
 // Page init
-$projects_view->Page_Init();
+$images_view->Page_Init();
 
 // Page main
-$projects_view->Page_Main();
+$images_view->Page_Main();
 
 // Global Page Rendering event (in userfn*.php)
 Page_Rendering();
 
 // Page Rendering event
-$projects_view->Page_Render();
+$images_view->Page_Render();
 ?>
 <?php include_once "header.php" ?>
 <script type="text/javascript">
 
 // Form object
 var CurrentPageID = EW_PAGE_ID = "view";
-var CurrentForm = fprojectsview = new ew_Form("fprojectsview", "view");
+var CurrentForm = fimagesview = new ew_Form("fimagesview", "view");
 
 // Form_CustomValidate event
-fprojectsview.Form_CustomValidate = 
+fimagesview.Form_CustomValidate = 
  function(fobj) { // DO NOT CHANGE THIS LINE!
 
  	// Your custom validation code here, return false if invalid. 
@@ -785,14 +767,15 @@ fprojectsview.Form_CustomValidate =
 
 // Use JavaScript validation or not
 <?php if (EW_CLIENT_VALIDATE) { ?>
-fprojectsview.ValidateRequired = true;
+fimagesview.ValidateRequired = true;
 <?php } else { ?>
-fprojectsview.ValidateRequired = false; 
+fimagesview.ValidateRequired = false; 
 <?php } ?>
 
 // Dynamic selection lists
-// Form object for search
+fimagesview.Lists["x_p_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_title","","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":""};
 
+// Form object for search
 </script>
 <script type="text/javascript">
 
@@ -800,98 +783,65 @@ fprojectsview.ValidateRequired = false;
 </script>
 <div class="ewToolbar">
 <?php $Breadcrumb->Render(); ?>
-<?php $projects_view->ExportOptions->Render("body") ?>
+<?php $images_view->ExportOptions->Render("body") ?>
 <?php
-	foreach ($projects_view->OtherOptions as &$option)
+	foreach ($images_view->OtherOptions as &$option)
 		$option->Render("body");
 ?>
 <?php echo $Language->SelectionForm(); ?>
 <div class="clearfix"></div>
 </div>
-<?php $projects_view->ShowPageHeader(); ?>
+<?php $images_view->ShowPageHeader(); ?>
 <?php
-$projects_view->ShowMessage();
+$images_view->ShowMessage();
 ?>
-<form name="fprojectsview" id="fprojectsview" class="form-inline ewForm ewViewForm" action="<?php echo ew_CurrentPage() ?>" method="post">
-<?php if ($projects_view->CheckToken) { ?>
-<input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $projects_view->Token ?>">
+<form name="fimagesview" id="fimagesview" class="form-inline ewForm ewViewForm" action="<?php echo ew_CurrentPage() ?>" method="post">
+<?php if ($images_view->CheckToken) { ?>
+<input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $images_view->Token ?>">
 <?php } ?>
-<input type="hidden" name="t" value="projects">
+<input type="hidden" name="t" value="images">
 <table class="table table-bordered table-striped ewViewTable">
-<?php if ($projects->id->Visible) { // id ?>
-	<tr id="r_id">
-		<td><span id="elh_projects_id"><?php echo $projects->id->FldCaption() ?></span></td>
-		<td data-name="id"<?php echo $projects->id->CellAttributes() ?>>
-<span id="el_projects_id">
-<span<?php echo $projects->id->ViewAttributes() ?>>
-<?php echo $projects->id->ViewValue ?></span>
+<?php if ($images->image_id->Visible) { // image_id ?>
+	<tr id="r_image_id">
+		<td><span id="elh_images_image_id"><?php echo $images->image_id->FldCaption() ?></span></td>
+		<td data-name="image_id"<?php echo $images->image_id->CellAttributes() ?>>
+<span id="el_images_image_id">
+<span<?php echo $images->image_id->ViewAttributes() ?>>
+<?php echo $images->image_id->ViewValue ?></span>
 </span>
 </td>
 	</tr>
 <?php } ?>
-<?php if ($projects->title->Visible) { // title ?>
-	<tr id="r_title">
-		<td><span id="elh_projects_title"><?php echo $projects->title->FldCaption() ?></span></td>
-		<td data-name="title"<?php echo $projects->title->CellAttributes() ?>>
-<span id="el_projects_title">
-<span<?php echo $projects->title->ViewAttributes() ?>>
-<?php echo $projects->title->ViewValue ?></span>
+<?php if ($images->p_id->Visible) { // p_id ?>
+	<tr id="r_p_id">
+		<td><span id="elh_images_p_id"><?php echo $images->p_id->FldCaption() ?></span></td>
+		<td data-name="p_id"<?php echo $images->p_id->CellAttributes() ?>>
+<span id="el_images_p_id">
+<span<?php echo $images->p_id->ViewAttributes() ?>>
+<?php echo $images->p_id->ViewValue ?></span>
 </span>
 </td>
 	</tr>
 <?php } ?>
-<?php if ($projects->images->Visible) { // images ?>
-	<tr id="r_images">
-		<td><span id="elh_projects_images"><?php echo $projects->images->FldCaption() ?></span></td>
-		<td data-name="images"<?php echo $projects->images->CellAttributes() ?>>
-<span id="el_projects_images">
-<span<?php echo $projects->images->ViewAttributes() ?>>
-<?php echo ew_GetFileViewTag($projects->images, $projects->images->ViewValue) ?>
+<?php if ($images->image_name->Visible) { // image_name ?>
+	<tr id="r_image_name">
+		<td><span id="elh_images_image_name"><?php echo $images->image_name->FldCaption() ?></span></td>
+		<td data-name="image_name"<?php echo $images->image_name->CellAttributes() ?>>
+<span id="el_images_image_name">
+<span<?php echo $images->image_name->ViewAttributes() ?>>
+<?php echo ew_GetFileViewTag($images->image_name, $images->image_name->ViewValue) ?>
 </span>
 </span>
 </td>
 	</tr>
 <?php } ?>
-<?php if ($projects->intro->Visible) { // intro ?>
-	<tr id="r_intro">
-		<td><span id="elh_projects_intro"><?php echo $projects->intro->FldCaption() ?></span></td>
-		<td data-name="intro"<?php echo $projects->intro->CellAttributes() ?>>
-<span id="el_projects_intro">
-<span<?php echo $projects->intro->ViewAttributes() ?>>
-<?php echo $projects->intro->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($projects->full_intro->Visible) { // full_intro ?>
-	<tr id="r_full_intro">
-		<td><span id="elh_projects_full_intro"><?php echo $projects->full_intro->FldCaption() ?></span></td>
-		<td data-name="full_intro"<?php echo $projects->full_intro->CellAttributes() ?>>
-<span id="el_projects_full_intro">
-<span<?php echo $projects->full_intro->ViewAttributes() ?>>
-<?php echo $projects->full_intro->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($projects->details->Visible) { // details ?>
-	<tr id="r_details">
-		<td><span id="elh_projects_details"><?php echo $projects->details->FldCaption() ?></span></td>
-		<td data-name="details"<?php echo $projects->details->CellAttributes() ?>>
-<span id="el_projects_details">
-<span<?php echo $projects->details->ViewAttributes() ?>>
-<?php echo $projects->details->ViewValue ?></span>
-</span>
-</td>
-	</tr>
-<?php } ?>
-<?php if ($projects->livelink->Visible) { // livelink ?>
-	<tr id="r_livelink">
-		<td><span id="elh_projects_livelink"><?php echo $projects->livelink->FldCaption() ?></span></td>
-		<td data-name="livelink"<?php echo $projects->livelink->CellAttributes() ?>>
-<span id="el_projects_livelink">
-<span<?php echo $projects->livelink->ViewAttributes() ?>>
-<?php echo $projects->livelink->ViewValue ?></span>
+<?php if ($images->image_detail->Visible) { // image_detail ?>
+	<tr id="r_image_detail">
+		<td><span id="elh_images_image_detail"><?php echo $images->image_detail->FldCaption() ?></span></td>
+		<td data-name="image_detail"<?php echo $images->image_detail->CellAttributes() ?>>
+<span id="el_images_image_detail">
+<span<?php echo $images->image_detail->ViewAttributes() ?>>
+<?php echo $images->image_detail->ViewValue ?></span>
 </span>
 </td>
 	</tr>
@@ -899,10 +849,10 @@ $projects_view->ShowMessage();
 </table>
 </form>
 <script type="text/javascript">
-fprojectsview.Init();
+fimagesview.Init();
 </script>
 <?php
-$projects_view->ShowPageFooter();
+$images_view->ShowPageFooter();
 if (EW_DEBUG_ENABLED)
 	echo ew_DebugMsg();
 ?>
@@ -914,5 +864,5 @@ if (EW_DEBUG_ENABLED)
 </script>
 <?php include_once "footer.php" ?>
 <?php
-$projects_view->Page_Terminate();
+$images_view->Page_Terminate();
 ?>

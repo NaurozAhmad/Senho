@@ -5,7 +5,7 @@ ob_start(); // Turn on output buffering
 <?php include_once "ewcfg12.php" ?>
 <?php include_once ((EW_USE_ADODB) ? "adodb5/adodb.inc.php" : "ewmysql12.php") ?>
 <?php include_once "phpfn12.php" ?>
-<?php include_once "projectsinfo.php" ?>
+<?php include_once "imagesinfo.php" ?>
 <?php include_once "userfn12.php" ?>
 <?php
 
@@ -13,9 +13,9 @@ ob_start(); // Turn on output buffering
 // Page class
 //
 
-$projects_list = NULL; // Initialize page object first
+$images_list = NULL; // Initialize page object first
 
-class cprojects_list extends cprojects {
+class cimages_list extends cimages {
 
 	// Page ID
 	var $PageID = 'list';
@@ -24,13 +24,13 @@ class cprojects_list extends cprojects {
 	var $ProjectID = "{D635DDF5-EC98-4B6F-806D-28D8D9C856B8}";
 
 	// Table name
-	var $TableName = 'projects';
+	var $TableName = 'images';
 
 	// Page object name
-	var $PageObjName = 'projects_list';
+	var $PageObjName = 'images_list';
 
 	// Grid form hidden field names
-	var $FormName = 'fprojectslist';
+	var $FormName = 'fimageslist';
 	var $FormActionName = 'k_action';
 	var $FormKeyName = 'k_key';
 	var $FormOldKeyName = 'k_oldkey';
@@ -260,10 +260,10 @@ class cprojects_list extends cprojects {
 		// Parent constuctor
 		parent::__construct();
 
-		// Table object (projects)
-		if (!isset($GLOBALS["projects"]) || get_class($GLOBALS["projects"]) == "cprojects") {
-			$GLOBALS["projects"] = &$this;
-			$GLOBALS["Table"] = &$GLOBALS["projects"];
+		// Table object (images)
+		if (!isset($GLOBALS["images"]) || get_class($GLOBALS["images"]) == "cimages") {
+			$GLOBALS["images"] = &$this;
+			$GLOBALS["Table"] = &$GLOBALS["images"];
 		}
 
 		// Initialize URLs
@@ -274,12 +274,12 @@ class cprojects_list extends cprojects {
 		$this->ExportXmlUrl = $this->PageUrl() . "export=xml";
 		$this->ExportCsvUrl = $this->PageUrl() . "export=csv";
 		$this->ExportPdfUrl = $this->PageUrl() . "export=pdf";
-		$this->AddUrl = "projectsadd.php";
+		$this->AddUrl = "imagesadd.php";
 		$this->InlineAddUrl = $this->PageUrl() . "a=add";
 		$this->GridAddUrl = $this->PageUrl() . "a=gridadd";
 		$this->GridEditUrl = $this->PageUrl() . "a=gridedit";
-		$this->MultiDeleteUrl = "projectsdelete.php";
-		$this->MultiUpdateUrl = "projectsupdate.php";
+		$this->MultiDeleteUrl = "imagesdelete.php";
+		$this->MultiUpdateUrl = "imagesupdate.php";
 
 		// Page ID
 		if (!defined("EW_PAGE_ID"))
@@ -287,7 +287,7 @@ class cprojects_list extends cprojects {
 
 		// Table name (for backward compatibility)
 		if (!defined("EW_TABLE_NAME"))
-			define("EW_TABLE_NAME", 'projects', TRUE);
+			define("EW_TABLE_NAME", 'images', TRUE);
 
 		// Start timer
 		if (!isset($GLOBALS["gTimer"])) $GLOBALS["gTimer"] = new cTimer();
@@ -318,7 +318,7 @@ class cprojects_list extends cprojects {
 		// Filter options
 		$this->FilterOptions = new cListOptions();
 		$this->FilterOptions->Tag = "div";
-		$this->FilterOptions->TagClassName = "ewFilterOption fprojectslistsrch";
+		$this->FilterOptions->TagClassName = "ewFilterOption fimageslistsrch";
 
 		// List actions
 		$this->ListActions = new cListActions();
@@ -403,13 +403,13 @@ class cprojects_list extends cprojects {
 		Page_Unloaded();
 
 		// Export
-		global $EW_EXPORT, $projects;
+		global $EW_EXPORT, $images;
 		if ($this->CustomExport <> "" && $this->CustomExport == $this->Export && array_key_exists($this->CustomExport, $EW_EXPORT)) {
 				$sContent = ob_get_contents();
 			if ($gsExportFile == "") $gsExportFile = $this->TableVar;
 			$class = $EW_EXPORT[$this->CustomExport];
 			if (class_exists($class)) {
-				$doc = new $class($projects);
+				$doc = new $class($images);
 				$doc->Text = $sContent;
 				if ($this->Export == "email")
 					echo $this->ExportEmail($doc->Text);
@@ -639,8 +639,8 @@ class cprojects_list extends cprojects {
 	function SetupKeyValues($key) {
 		$arrKeyFlds = explode($GLOBALS["EW_COMPOSITE_KEY_SEPARATOR"], $key);
 		if (count($arrKeyFlds) >= 1) {
-			$this->id->setFormValue($arrKeyFlds[0]);
-			if (!is_numeric($this->id->FormValue))
+			$this->image_id->setFormValue($arrKeyFlds[0]);
+			if (!is_numeric($this->image_id->FormValue))
 				return FALSE;
 		}
 		return TRUE;
@@ -651,13 +651,10 @@ class cprojects_list extends cprojects {
 
 		// Initialize
 		$sFilterList = "";
-		$sFilterList = ew_Concat($sFilterList, $this->id->AdvancedSearch->ToJSON(), ","); // Field id
-		$sFilterList = ew_Concat($sFilterList, $this->title->AdvancedSearch->ToJSON(), ","); // Field title
-		$sFilterList = ew_Concat($sFilterList, $this->images->AdvancedSearch->ToJSON(), ","); // Field images
-		$sFilterList = ew_Concat($sFilterList, $this->intro->AdvancedSearch->ToJSON(), ","); // Field intro
-		$sFilterList = ew_Concat($sFilterList, $this->full_intro->AdvancedSearch->ToJSON(), ","); // Field full_intro
-		$sFilterList = ew_Concat($sFilterList, $this->details->AdvancedSearch->ToJSON(), ","); // Field details
-		$sFilterList = ew_Concat($sFilterList, $this->livelink->AdvancedSearch->ToJSON(), ","); // Field livelink
+		$sFilterList = ew_Concat($sFilterList, $this->image_id->AdvancedSearch->ToJSON(), ","); // Field image_id
+		$sFilterList = ew_Concat($sFilterList, $this->p_id->AdvancedSearch->ToJSON(), ","); // Field p_id
+		$sFilterList = ew_Concat($sFilterList, $this->image_name->AdvancedSearch->ToJSON(), ","); // Field image_name
+		$sFilterList = ew_Concat($sFilterList, $this->image_detail->AdvancedSearch->ToJSON(), ","); // Field image_detail
 		if ($this->BasicSearch->Keyword <> "") {
 			$sWrk = "\"psearch\":\"" . ew_JsEncode2($this->BasicSearch->Keyword) . "\",\"psearchtype\":\"" . ew_JsEncode2($this->BasicSearch->Type) . "\"";
 			$sFilterList = ew_Concat($sFilterList, $sWrk, ",");
@@ -676,61 +673,37 @@ class cprojects_list extends cprojects {
 		$filter = json_decode(ew_StripSlashes(@$_POST["filter"]), TRUE);
 		$this->Command = "search";
 
-		// Field id
-		$this->id->AdvancedSearch->SearchValue = @$filter["x_id"];
-		$this->id->AdvancedSearch->SearchOperator = @$filter["z_id"];
-		$this->id->AdvancedSearch->SearchCondition = @$filter["v_id"];
-		$this->id->AdvancedSearch->SearchValue2 = @$filter["y_id"];
-		$this->id->AdvancedSearch->SearchOperator2 = @$filter["w_id"];
-		$this->id->AdvancedSearch->Save();
+		// Field image_id
+		$this->image_id->AdvancedSearch->SearchValue = @$filter["x_image_id"];
+		$this->image_id->AdvancedSearch->SearchOperator = @$filter["z_image_id"];
+		$this->image_id->AdvancedSearch->SearchCondition = @$filter["v_image_id"];
+		$this->image_id->AdvancedSearch->SearchValue2 = @$filter["y_image_id"];
+		$this->image_id->AdvancedSearch->SearchOperator2 = @$filter["w_image_id"];
+		$this->image_id->AdvancedSearch->Save();
 
-		// Field title
-		$this->title->AdvancedSearch->SearchValue = @$filter["x_title"];
-		$this->title->AdvancedSearch->SearchOperator = @$filter["z_title"];
-		$this->title->AdvancedSearch->SearchCondition = @$filter["v_title"];
-		$this->title->AdvancedSearch->SearchValue2 = @$filter["y_title"];
-		$this->title->AdvancedSearch->SearchOperator2 = @$filter["w_title"];
-		$this->title->AdvancedSearch->Save();
+		// Field p_id
+		$this->p_id->AdvancedSearch->SearchValue = @$filter["x_p_id"];
+		$this->p_id->AdvancedSearch->SearchOperator = @$filter["z_p_id"];
+		$this->p_id->AdvancedSearch->SearchCondition = @$filter["v_p_id"];
+		$this->p_id->AdvancedSearch->SearchValue2 = @$filter["y_p_id"];
+		$this->p_id->AdvancedSearch->SearchOperator2 = @$filter["w_p_id"];
+		$this->p_id->AdvancedSearch->Save();
 
-		// Field images
-		$this->images->AdvancedSearch->SearchValue = @$filter["x_images"];
-		$this->images->AdvancedSearch->SearchOperator = @$filter["z_images"];
-		$this->images->AdvancedSearch->SearchCondition = @$filter["v_images"];
-		$this->images->AdvancedSearch->SearchValue2 = @$filter["y_images"];
-		$this->images->AdvancedSearch->SearchOperator2 = @$filter["w_images"];
-		$this->images->AdvancedSearch->Save();
+		// Field image_name
+		$this->image_name->AdvancedSearch->SearchValue = @$filter["x_image_name"];
+		$this->image_name->AdvancedSearch->SearchOperator = @$filter["z_image_name"];
+		$this->image_name->AdvancedSearch->SearchCondition = @$filter["v_image_name"];
+		$this->image_name->AdvancedSearch->SearchValue2 = @$filter["y_image_name"];
+		$this->image_name->AdvancedSearch->SearchOperator2 = @$filter["w_image_name"];
+		$this->image_name->AdvancedSearch->Save();
 
-		// Field intro
-		$this->intro->AdvancedSearch->SearchValue = @$filter["x_intro"];
-		$this->intro->AdvancedSearch->SearchOperator = @$filter["z_intro"];
-		$this->intro->AdvancedSearch->SearchCondition = @$filter["v_intro"];
-		$this->intro->AdvancedSearch->SearchValue2 = @$filter["y_intro"];
-		$this->intro->AdvancedSearch->SearchOperator2 = @$filter["w_intro"];
-		$this->intro->AdvancedSearch->Save();
-
-		// Field full_intro
-		$this->full_intro->AdvancedSearch->SearchValue = @$filter["x_full_intro"];
-		$this->full_intro->AdvancedSearch->SearchOperator = @$filter["z_full_intro"];
-		$this->full_intro->AdvancedSearch->SearchCondition = @$filter["v_full_intro"];
-		$this->full_intro->AdvancedSearch->SearchValue2 = @$filter["y_full_intro"];
-		$this->full_intro->AdvancedSearch->SearchOperator2 = @$filter["w_full_intro"];
-		$this->full_intro->AdvancedSearch->Save();
-
-		// Field details
-		$this->details->AdvancedSearch->SearchValue = @$filter["x_details"];
-		$this->details->AdvancedSearch->SearchOperator = @$filter["z_details"];
-		$this->details->AdvancedSearch->SearchCondition = @$filter["v_details"];
-		$this->details->AdvancedSearch->SearchValue2 = @$filter["y_details"];
-		$this->details->AdvancedSearch->SearchOperator2 = @$filter["w_details"];
-		$this->details->AdvancedSearch->Save();
-
-		// Field livelink
-		$this->livelink->AdvancedSearch->SearchValue = @$filter["x_livelink"];
-		$this->livelink->AdvancedSearch->SearchOperator = @$filter["z_livelink"];
-		$this->livelink->AdvancedSearch->SearchCondition = @$filter["v_livelink"];
-		$this->livelink->AdvancedSearch->SearchValue2 = @$filter["y_livelink"];
-		$this->livelink->AdvancedSearch->SearchOperator2 = @$filter["w_livelink"];
-		$this->livelink->AdvancedSearch->Save();
+		// Field image_detail
+		$this->image_detail->AdvancedSearch->SearchValue = @$filter["x_image_detail"];
+		$this->image_detail->AdvancedSearch->SearchOperator = @$filter["z_image_detail"];
+		$this->image_detail->AdvancedSearch->SearchCondition = @$filter["v_image_detail"];
+		$this->image_detail->AdvancedSearch->SearchValue2 = @$filter["y_image_detail"];
+		$this->image_detail->AdvancedSearch->SearchOperator2 = @$filter["w_image_detail"];
+		$this->image_detail->AdvancedSearch->Save();
 		$this->BasicSearch->setKeyword(@$filter["psearch"]);
 		$this->BasicSearch->setType(@$filter["psearchtype"]);
 	}
@@ -738,12 +711,8 @@ class cprojects_list extends cprojects {
 	// Return basic search SQL
 	function BasicSearchSQL($arKeywords, $type) {
 		$sWhere = "";
-		$this->BuildBasicSearchSQL($sWhere, $this->title, $arKeywords, $type);
-		$this->BuildBasicSearchSQL($sWhere, $this->images, $arKeywords, $type);
-		$this->BuildBasicSearchSQL($sWhere, $this->intro, $arKeywords, $type);
-		$this->BuildBasicSearchSQL($sWhere, $this->full_intro, $arKeywords, $type);
-		$this->BuildBasicSearchSQL($sWhere, $this->details, $arKeywords, $type);
-		$this->BuildBasicSearchSQL($sWhere, $this->livelink, $arKeywords, $type);
+		$this->BuildBasicSearchSQL($sWhere, $this->image_name, $arKeywords, $type);
+		$this->BuildBasicSearchSQL($sWhere, $this->image_detail, $arKeywords, $type);
 		return $sWhere;
 	}
 
@@ -897,7 +866,7 @@ class cprojects_list extends cprojects {
 		if (@$_GET["order"] <> "") {
 			$this->CurrentOrder = ew_StripSlashes(@$_GET["order"]);
 			$this->CurrentOrderType = @$_GET["ordertype"];
-			$this->UpdateSort($this->title); // title
+			$this->UpdateSort($this->image_name); // image_name
 			$this->setStartRecordNumber(1); // Reset start position
 		}
 	}
@@ -930,7 +899,7 @@ class cprojects_list extends cprojects {
 			if ($this->Command == "resetsort") {
 				$sOrderBy = "";
 				$this->setSessionOrderBy($sOrderBy);
-				$this->title->setSort("");
+				$this->image_name->setSort("");
 			}
 
 			// Reset start position
@@ -1071,7 +1040,7 @@ class cprojects_list extends cprojects {
 
 		// "checkbox"
 		$oListOpt = &$this->ListOptions->Items["checkbox"];
-		$oListOpt->Body = "<input type=\"checkbox\" name=\"key_m[]\" value=\"" . ew_HtmlEncode($this->id->CurrentValue) . "\" onclick='ew_ClickMultiCheckbox(event);'>";
+		$oListOpt->Body = "<input type=\"checkbox\" name=\"key_m[]\" value=\"" . ew_HtmlEncode($this->image_id->CurrentValue) . "\" onclick='ew_ClickMultiCheckbox(event);'>";
 		$this->RenderListOptionsExt();
 
 		// Call ListOptions_Rendered event
@@ -1106,10 +1075,10 @@ class cprojects_list extends cprojects {
 
 		// Filter button
 		$item = &$this->FilterOptions->Add("savecurrentfilter");
-		$item->Body = "<a class=\"ewSaveFilter\" data-form=\"fprojectslistsrch\" href=\"#\">" . $Language->Phrase("SaveCurrentFilter") . "</a>";
+		$item->Body = "<a class=\"ewSaveFilter\" data-form=\"fimageslistsrch\" href=\"#\">" . $Language->Phrase("SaveCurrentFilter") . "</a>";
 		$item->Visible = TRUE;
 		$item = &$this->FilterOptions->Add("deletefilter");
-		$item->Body = "<a class=\"ewDeleteFilter\" data-form=\"fprojectslistsrch\" href=\"#\">" . $Language->Phrase("DeleteFilter") . "</a>";
+		$item->Body = "<a class=\"ewDeleteFilter\" data-form=\"fimageslistsrch\" href=\"#\">" . $Language->Phrase("DeleteFilter") . "</a>";
 		$item->Visible = TRUE;
 		$this->FilterOptions->UseDropDownButton = TRUE;
 		$this->FilterOptions->UseButtonGroup = !$this->FilterOptions->UseDropDownButton;
@@ -1133,7 +1102,7 @@ class cprojects_list extends cprojects {
 					$item = &$option->Add("custom_" . $listaction->Action);
 					$caption = $listaction->Caption;
 					$icon = ($listaction->Icon <> "") ? "<span class=\"" . ew_HtmlEncode($listaction->Icon) . "\" data-caption=\"" . ew_HtmlEncode($caption) . "\"></span> " : $caption;
-					$item->Body = "<a class=\"ewAction ewListAction\" title=\"" . ew_HtmlEncode($caption) . "\" data-caption=\"" . ew_HtmlEncode($caption) . "\" href=\"\" onclick=\"ew_SubmitAction(event,jQuery.extend({f:document.fprojectslist}," . $listaction->ToJson(TRUE) . "));return false;\">" . $icon . "</a>";
+					$item->Body = "<a class=\"ewAction ewListAction\" title=\"" . ew_HtmlEncode($caption) . "\" data-caption=\"" . ew_HtmlEncode($caption) . "\" href=\"\" onclick=\"ew_SubmitAction(event,jQuery.extend({f:document.fimageslist}," . $listaction->ToJson(TRUE) . "));return false;\">" . $icon . "</a>";
 					$item->Visible = $listaction->Allow;
 				}
 			}
@@ -1236,7 +1205,7 @@ class cprojects_list extends cprojects {
 		// Search button
 		$item = &$this->SearchOptions->Add("searchtoggle");
 		$SearchToggleClass = ($this->SearchWhere <> "") ? " active" : " active";
-		$item->Body = "<button type=\"button\" class=\"btn btn-default ewSearchToggle" . $SearchToggleClass . "\" title=\"" . $Language->Phrase("SearchPanel") . "\" data-caption=\"" . $Language->Phrase("SearchPanel") . "\" data-toggle=\"button\" data-form=\"fprojectslistsrch\">" . $Language->Phrase("SearchBtn") . "</button>";
+		$item->Body = "<button type=\"button\" class=\"btn btn-default ewSearchToggle" . $SearchToggleClass . "\" title=\"" . $Language->Phrase("SearchPanel") . "\" data-caption=\"" . $Language->Phrase("SearchPanel") . "\" data-toggle=\"button\" data-form=\"fimageslistsrch\">" . $Language->Phrase("SearchBtn") . "</button>";
 		$item->Visible = TRUE;
 
 		// Show all button
@@ -1366,27 +1335,21 @@ class cprojects_list extends cprojects {
 		// Call Row Selected event
 		$row = &$rs->fields;
 		$this->Row_Selected($row);
-		$this->id->setDbValue($rs->fields('id'));
-		$this->title->setDbValue($rs->fields('title'));
-		$this->images->Upload->DbValue = $rs->fields('images');
-		$this->images->CurrentValue = $this->images->Upload->DbValue;
-		$this->intro->setDbValue($rs->fields('intro'));
-		$this->full_intro->setDbValue($rs->fields('full_intro'));
-		$this->details->setDbValue($rs->fields('details'));
-		$this->livelink->setDbValue($rs->fields('livelink'));
+		$this->image_id->setDbValue($rs->fields('image_id'));
+		$this->p_id->setDbValue($rs->fields('p_id'));
+		$this->image_name->Upload->DbValue = $rs->fields('image_name');
+		$this->image_name->CurrentValue = $this->image_name->Upload->DbValue;
+		$this->image_detail->setDbValue($rs->fields('image_detail'));
 	}
 
 	// Load DbValue from recordset
 	function LoadDbValues(&$rs) {
 		if (!$rs || !is_array($rs) && $rs->EOF) return;
 		$row = is_array($rs) ? $rs : $rs->fields;
-		$this->id->DbValue = $row['id'];
-		$this->title->DbValue = $row['title'];
-		$this->images->Upload->DbValue = $row['images'];
-		$this->intro->DbValue = $row['intro'];
-		$this->full_intro->DbValue = $row['full_intro'];
-		$this->details->DbValue = $row['details'];
-		$this->livelink->DbValue = $row['livelink'];
+		$this->image_id->DbValue = $row['image_id'];
+		$this->p_id->DbValue = $row['p_id'];
+		$this->image_name->Upload->DbValue = $row['image_name'];
+		$this->image_detail->DbValue = $row['image_detail'];
 	}
 
 	// Load old record
@@ -1394,8 +1357,8 @@ class cprojects_list extends cprojects {
 
 		// Load key values from Session
 		$bValidKey = TRUE;
-		if (strval($this->getKey("id")) <> "")
-			$this->id->CurrentValue = $this->getKey("id"); // id
+		if (strval($this->getKey("image_id")) <> "")
+			$this->image_id->CurrentValue = $this->getKey("image_id"); // image_id
 		else
 			$bValidKey = FALSE;
 
@@ -1428,28 +1391,53 @@ class cprojects_list extends cprojects {
 		$this->Row_Rendering();
 
 		// Common render codes for all row types
-		// id
-		// title
-		// images
-		// intro
-		// full_intro
-		// details
-		// livelink
+		// image_id
+		// p_id
+		// image_name
+		// image_detail
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
-		// id
-		$this->id->ViewValue = $this->id->CurrentValue;
-		$this->id->ViewCustomAttributes = "";
+		// image_id
+		$this->image_id->ViewValue = $this->image_id->CurrentValue;
+		$this->image_id->ViewCustomAttributes = "";
 
-		// title
-		$this->title->ViewValue = $this->title->CurrentValue;
-		$this->title->ViewCustomAttributes = "";
+		// p_id
+		if (strval($this->p_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->p_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `title` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `projects`";
+		$sWhereWrk = "";
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->p_id, $sWhereWrk); // Call Lookup selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$this->p_id->ViewValue = $this->p_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->p_id->ViewValue = $this->p_id->CurrentValue;
+			}
+		} else {
+			$this->p_id->ViewValue = NULL;
+		}
+		$this->p_id->ViewCustomAttributes = "";
 
-			// title
-			$this->title->LinkCustomAttributes = "";
-			$this->title->HrefValue = "";
-			$this->title->TooltipValue = "";
+		// image_name
+		$this->image_name->UploadPath = "/projectimages";
+		if (!ew_Empty($this->image_name->Upload->DbValue)) {
+			$this->image_name->ViewValue = $this->image_name->Upload->DbValue;
+		} else {
+			$this->image_name->ViewValue = "";
+		}
+		$this->image_name->ViewCustomAttributes = "";
+
+			// image_name
+			$this->image_name->LinkCustomAttributes = "";
+			$this->image_name->HrefValue = "";
+			$this->image_name->HrefValue2 = $this->image_name->UploadPath . $this->image_name->Upload->DbValue;
+			$this->image_name->TooltipValue = "";
 		}
 
 		// Call Row Rendered event
@@ -1590,30 +1578,30 @@ class cprojects_list extends cprojects {
 <?php
 
 // Create page object
-if (!isset($projects_list)) $projects_list = new cprojects_list();
+if (!isset($images_list)) $images_list = new cimages_list();
 
 // Page init
-$projects_list->Page_Init();
+$images_list->Page_Init();
 
 // Page main
-$projects_list->Page_Main();
+$images_list->Page_Main();
 
 // Global Page Rendering event (in userfn*.php)
 Page_Rendering();
 
 // Page Rendering event
-$projects_list->Page_Render();
+$images_list->Page_Render();
 ?>
 <?php include_once "header.php" ?>
 <script type="text/javascript">
 
 // Form object
 var CurrentPageID = EW_PAGE_ID = "list";
-var CurrentForm = fprojectslist = new ew_Form("fprojectslist", "list");
-fprojectslist.FormKeyCountName = '<?php echo $projects_list->FormKeyCountName ?>';
+var CurrentForm = fimageslist = new ew_Form("fimageslist", "list");
+fimageslist.FormKeyCountName = '<?php echo $images_list->FormKeyCountName ?>';
 
 // Form_CustomValidate event
-fprojectslist.Form_CustomValidate = 
+fimageslist.Form_CustomValidate = 
  function(fobj) { // DO NOT CHANGE THIS LINE!
 
  	// Your custom validation code here, return false if invalid. 
@@ -1622,15 +1610,15 @@ fprojectslist.Form_CustomValidate =
 
 // Use JavaScript validation or not
 <?php if (EW_CLIENT_VALIDATE) { ?>
-fprojectslist.ValidateRequired = true;
+fimageslist.ValidateRequired = true;
 <?php } else { ?>
-fprojectslist.ValidateRequired = false; 
+fimageslist.ValidateRequired = false; 
 <?php } ?>
 
 // Dynamic selection lists
 // Form object for search
 
-var CurrentSearchForm = fprojectslistsrch = new ew_Form("fprojectslistsrch");
+var CurrentSearchForm = fimageslistsrch = new ew_Form("fimageslistsrch");
 </script>
 <script type="text/javascript">
 
@@ -1638,63 +1626,63 @@ var CurrentSearchForm = fprojectslistsrch = new ew_Form("fprojectslistsrch");
 </script>
 <div class="ewToolbar">
 <?php $Breadcrumb->Render(); ?>
-<?php if ($projects_list->TotalRecs > 0 && $projects_list->ExportOptions->Visible()) { ?>
-<?php $projects_list->ExportOptions->Render("body") ?>
+<?php if ($images_list->TotalRecs > 0 && $images_list->ExportOptions->Visible()) { ?>
+<?php $images_list->ExportOptions->Render("body") ?>
 <?php } ?>
-<?php if ($projects_list->SearchOptions->Visible()) { ?>
-<?php $projects_list->SearchOptions->Render("body") ?>
+<?php if ($images_list->SearchOptions->Visible()) { ?>
+<?php $images_list->SearchOptions->Render("body") ?>
 <?php } ?>
-<?php if ($projects_list->FilterOptions->Visible()) { ?>
-<?php $projects_list->FilterOptions->Render("body") ?>
+<?php if ($images_list->FilterOptions->Visible()) { ?>
+<?php $images_list->FilterOptions->Render("body") ?>
 <?php } ?>
 <?php echo $Language->SelectionForm(); ?>
 <div class="clearfix"></div>
 </div>
 <?php
-	$bSelectLimit = $projects_list->UseSelectLimit;
+	$bSelectLimit = $images_list->UseSelectLimit;
 	if ($bSelectLimit) {
-		if ($projects_list->TotalRecs <= 0)
-			$projects_list->TotalRecs = $projects->SelectRecordCount();
+		if ($images_list->TotalRecs <= 0)
+			$images_list->TotalRecs = $images->SelectRecordCount();
 	} else {
-		if (!$projects_list->Recordset && ($projects_list->Recordset = $projects_list->LoadRecordset()))
-			$projects_list->TotalRecs = $projects_list->Recordset->RecordCount();
+		if (!$images_list->Recordset && ($images_list->Recordset = $images_list->LoadRecordset()))
+			$images_list->TotalRecs = $images_list->Recordset->RecordCount();
 	}
-	$projects_list->StartRec = 1;
-	if ($projects_list->DisplayRecs <= 0 || ($projects->Export <> "" && $projects->ExportAll)) // Display all records
-		$projects_list->DisplayRecs = $projects_list->TotalRecs;
-	if (!($projects->Export <> "" && $projects->ExportAll))
-		$projects_list->SetUpStartRec(); // Set up start record position
+	$images_list->StartRec = 1;
+	if ($images_list->DisplayRecs <= 0 || ($images->Export <> "" && $images->ExportAll)) // Display all records
+		$images_list->DisplayRecs = $images_list->TotalRecs;
+	if (!($images->Export <> "" && $images->ExportAll))
+		$images_list->SetUpStartRec(); // Set up start record position
 	if ($bSelectLimit)
-		$projects_list->Recordset = $projects_list->LoadRecordset($projects_list->StartRec-1, $projects_list->DisplayRecs);
+		$images_list->Recordset = $images_list->LoadRecordset($images_list->StartRec-1, $images_list->DisplayRecs);
 
 	// Set no record found message
-	if ($projects->CurrentAction == "" && $projects_list->TotalRecs == 0) {
-		if ($projects_list->SearchWhere == "0=101")
-			$projects_list->setWarningMessage($Language->Phrase("EnterSearchCriteria"));
+	if ($images->CurrentAction == "" && $images_list->TotalRecs == 0) {
+		if ($images_list->SearchWhere == "0=101")
+			$images_list->setWarningMessage($Language->Phrase("EnterSearchCriteria"));
 		else
-			$projects_list->setWarningMessage($Language->Phrase("NoRecord"));
+			$images_list->setWarningMessage($Language->Phrase("NoRecord"));
 	}
-$projects_list->RenderOtherOptions();
+$images_list->RenderOtherOptions();
 ?>
 <?php if ($Security->IsLoggedIn()) { ?>
-<?php if ($projects->Export == "" && $projects->CurrentAction == "") { ?>
-<form name="fprojectslistsrch" id="fprojectslistsrch" class="form-inline ewForm" action="<?php echo ew_CurrentPage() ?>">
-<?php $SearchPanelClass = ($projects_list->SearchWhere <> "") ? " in" : " in"; ?>
-<div id="fprojectslistsrch_SearchPanel" class="ewSearchPanel collapse<?php echo $SearchPanelClass ?>">
+<?php if ($images->Export == "" && $images->CurrentAction == "") { ?>
+<form name="fimageslistsrch" id="fimageslistsrch" class="form-inline ewForm" action="<?php echo ew_CurrentPage() ?>">
+<?php $SearchPanelClass = ($images_list->SearchWhere <> "") ? " in" : " in"; ?>
+<div id="fimageslistsrch_SearchPanel" class="ewSearchPanel collapse<?php echo $SearchPanelClass ?>">
 <input type="hidden" name="cmd" value="search">
-<input type="hidden" name="t" value="projects">
+<input type="hidden" name="t" value="images">
 	<div class="ewBasicSearch">
 <div id="xsr_1" class="ewRow">
 	<div class="ewQuickSearch input-group">
-	<input type="text" name="<?php echo EW_TABLE_BASIC_SEARCH ?>" id="<?php echo EW_TABLE_BASIC_SEARCH ?>" class="form-control" value="<?php echo ew_HtmlEncode($projects_list->BasicSearch->getKeyword()) ?>" placeholder="<?php echo ew_HtmlEncode($Language->Phrase("Search")) ?>">
-	<input type="hidden" name="<?php echo EW_TABLE_BASIC_SEARCH_TYPE ?>" id="<?php echo EW_TABLE_BASIC_SEARCH_TYPE ?>" value="<?php echo ew_HtmlEncode($projects_list->BasicSearch->getType()) ?>">
+	<input type="text" name="<?php echo EW_TABLE_BASIC_SEARCH ?>" id="<?php echo EW_TABLE_BASIC_SEARCH ?>" class="form-control" value="<?php echo ew_HtmlEncode($images_list->BasicSearch->getKeyword()) ?>" placeholder="<?php echo ew_HtmlEncode($Language->Phrase("Search")) ?>">
+	<input type="hidden" name="<?php echo EW_TABLE_BASIC_SEARCH_TYPE ?>" id="<?php echo EW_TABLE_BASIC_SEARCH_TYPE ?>" value="<?php echo ew_HtmlEncode($images_list->BasicSearch->getType()) ?>">
 	<div class="input-group-btn">
-		<button type="button" data-toggle="dropdown" class="btn btn-default"><span id="searchtype"><?php echo $projects_list->BasicSearch->getTypeNameShort() ?></span><span class="caret"></span></button>
+		<button type="button" data-toggle="dropdown" class="btn btn-default"><span id="searchtype"><?php echo $images_list->BasicSearch->getTypeNameShort() ?></span><span class="caret"></span></button>
 		<ul class="dropdown-menu pull-right" role="menu">
-			<li<?php if ($projects_list->BasicSearch->getType() == "") echo " class=\"active\""; ?>><a href="javascript:void(0);" onclick="ew_SetSearchType(this)"><?php echo $Language->Phrase("QuickSearchAuto") ?></a></li>
-			<li<?php if ($projects_list->BasicSearch->getType() == "=") echo " class=\"active\""; ?>><a href="javascript:void(0);" onclick="ew_SetSearchType(this,'=')"><?php echo $Language->Phrase("QuickSearchExact") ?></a></li>
-			<li<?php if ($projects_list->BasicSearch->getType() == "AND") echo " class=\"active\""; ?>><a href="javascript:void(0);" onclick="ew_SetSearchType(this,'AND')"><?php echo $Language->Phrase("QuickSearchAll") ?></a></li>
-			<li<?php if ($projects_list->BasicSearch->getType() == "OR") echo " class=\"active\""; ?>><a href="javascript:void(0);" onclick="ew_SetSearchType(this,'OR')"><?php echo $Language->Phrase("QuickSearchAny") ?></a></li>
+			<li<?php if ($images_list->BasicSearch->getType() == "") echo " class=\"active\""; ?>><a href="javascript:void(0);" onclick="ew_SetSearchType(this)"><?php echo $Language->Phrase("QuickSearchAuto") ?></a></li>
+			<li<?php if ($images_list->BasicSearch->getType() == "=") echo " class=\"active\""; ?>><a href="javascript:void(0);" onclick="ew_SetSearchType(this,'=')"><?php echo $Language->Phrase("QuickSearchExact") ?></a></li>
+			<li<?php if ($images_list->BasicSearch->getType() == "AND") echo " class=\"active\""; ?>><a href="javascript:void(0);" onclick="ew_SetSearchType(this,'AND')"><?php echo $Language->Phrase("QuickSearchAll") ?></a></li>
+			<li<?php if ($images_list->BasicSearch->getType() == "OR") echo " class=\"active\""; ?>><a href="javascript:void(0);" onclick="ew_SetSearchType(this,'OR')"><?php echo $Language->Phrase("QuickSearchAny") ?></a></li>
 		</ul>
 	<button class="btn btn-primary ewButton" name="btnsubmit" id="btnsubmit" type="submit"><?php echo $Language->Phrase("QuickSearchBtn") ?></button>
 	</div>
@@ -1705,132 +1693,133 @@ $projects_list->RenderOtherOptions();
 </form>
 <?php } ?>
 <?php } ?>
-<?php $projects_list->ShowPageHeader(); ?>
+<?php $images_list->ShowPageHeader(); ?>
 <?php
-$projects_list->ShowMessage();
+$images_list->ShowMessage();
 ?>
-<?php if ($projects_list->TotalRecs > 0 || $projects->CurrentAction <> "") { ?>
+<?php if ($images_list->TotalRecs > 0 || $images->CurrentAction <> "") { ?>
 <div class="panel panel-default ewGrid">
-<form name="fprojectslist" id="fprojectslist" class="form-inline ewForm ewListForm" action="<?php echo ew_CurrentPage() ?>" method="post">
-<?php if ($projects_list->CheckToken) { ?>
-<input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $projects_list->Token ?>">
+<form name="fimageslist" id="fimageslist" class="form-inline ewForm ewListForm" action="<?php echo ew_CurrentPage() ?>" method="post">
+<?php if ($images_list->CheckToken) { ?>
+<input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $images_list->Token ?>">
 <?php } ?>
-<input type="hidden" name="t" value="projects">
-<div id="gmp_projects" class="<?php if (ew_IsResponsiveLayout()) { echo "table-responsive "; } ?>ewGridMiddlePanel">
-<?php if ($projects_list->TotalRecs > 0) { ?>
-<table id="tbl_projectslist" class="table ewTable">
-<?php echo $projects->TableCustomInnerHtml ?>
+<input type="hidden" name="t" value="images">
+<div id="gmp_images" class="<?php if (ew_IsResponsiveLayout()) { echo "table-responsive "; } ?>ewGridMiddlePanel">
+<?php if ($images_list->TotalRecs > 0) { ?>
+<table id="tbl_imageslist" class="table ewTable">
+<?php echo $images->TableCustomInnerHtml ?>
 <thead><!-- Table header -->
 	<tr class="ewTableHeader">
 <?php
 
 // Header row
-$projects_list->RowType = EW_ROWTYPE_HEADER;
+$images_list->RowType = EW_ROWTYPE_HEADER;
 
 // Render list options
-$projects_list->RenderListOptions();
+$images_list->RenderListOptions();
 
 // Render list options (header, left)
-$projects_list->ListOptions->Render("header", "left");
+$images_list->ListOptions->Render("header", "left");
 ?>
-<?php if ($projects->title->Visible) { // title ?>
-	<?php if ($projects->SortUrl($projects->title) == "") { ?>
-		<th data-name="title"><div id="elh_projects_title" class="projects_title"><div class="ewTableHeaderCaption"><?php echo $projects->title->FldCaption() ?></div></div></th>
+<?php if ($images->image_name->Visible) { // image_name ?>
+	<?php if ($images->SortUrl($images->image_name) == "") { ?>
+		<th data-name="image_name"><div id="elh_images_image_name" class="images_image_name"><div class="ewTableHeaderCaption"><?php echo $images->image_name->FldCaption() ?></div></div></th>
 	<?php } else { ?>
-		<th data-name="title"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $projects->SortUrl($projects->title) ?>',1);"><div id="elh_projects_title" class="projects_title">
-			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $projects->title->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($projects->title->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($projects->title->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
+		<th data-name="image_name"><div class="ewPointer" onclick="ew_Sort(event,'<?php echo $images->SortUrl($images->image_name) ?>',1);"><div id="elh_images_image_name" class="images_image_name">
+			<div class="ewTableHeaderBtn"><span class="ewTableHeaderCaption"><?php echo $images->image_name->FldCaption() ?><?php echo $Language->Phrase("SrchLegend") ?></span><span class="ewTableHeaderSort"><?php if ($images->image_name->getSort() == "ASC") { ?><span class="caret ewSortUp"></span><?php } elseif ($images->image_name->getSort() == "DESC") { ?><span class="caret"></span><?php } ?></span></div>
         </div></div></th>
 	<?php } ?>
 <?php } ?>		
 <?php
 
 // Render list options (header, right)
-$projects_list->ListOptions->Render("header", "right");
+$images_list->ListOptions->Render("header", "right");
 ?>
 	</tr>
 </thead>
 <tbody>
 <?php
-if ($projects->ExportAll && $projects->Export <> "") {
-	$projects_list->StopRec = $projects_list->TotalRecs;
+if ($images->ExportAll && $images->Export <> "") {
+	$images_list->StopRec = $images_list->TotalRecs;
 } else {
 
 	// Set the last record to display
-	if ($projects_list->TotalRecs > $projects_list->StartRec + $projects_list->DisplayRecs - 1)
-		$projects_list->StopRec = $projects_list->StartRec + $projects_list->DisplayRecs - 1;
+	if ($images_list->TotalRecs > $images_list->StartRec + $images_list->DisplayRecs - 1)
+		$images_list->StopRec = $images_list->StartRec + $images_list->DisplayRecs - 1;
 	else
-		$projects_list->StopRec = $projects_list->TotalRecs;
+		$images_list->StopRec = $images_list->TotalRecs;
 }
-$projects_list->RecCnt = $projects_list->StartRec - 1;
-if ($projects_list->Recordset && !$projects_list->Recordset->EOF) {
-	$projects_list->Recordset->MoveFirst();
-	$bSelectLimit = $projects_list->UseSelectLimit;
-	if (!$bSelectLimit && $projects_list->StartRec > 1)
-		$projects_list->Recordset->Move($projects_list->StartRec - 1);
-} elseif (!$projects->AllowAddDeleteRow && $projects_list->StopRec == 0) {
-	$projects_list->StopRec = $projects->GridAddRowCount;
+$images_list->RecCnt = $images_list->StartRec - 1;
+if ($images_list->Recordset && !$images_list->Recordset->EOF) {
+	$images_list->Recordset->MoveFirst();
+	$bSelectLimit = $images_list->UseSelectLimit;
+	if (!$bSelectLimit && $images_list->StartRec > 1)
+		$images_list->Recordset->Move($images_list->StartRec - 1);
+} elseif (!$images->AllowAddDeleteRow && $images_list->StopRec == 0) {
+	$images_list->StopRec = $images->GridAddRowCount;
 }
 
 // Initialize aggregate
-$projects->RowType = EW_ROWTYPE_AGGREGATEINIT;
-$projects->ResetAttrs();
-$projects_list->RenderRow();
-while ($projects_list->RecCnt < $projects_list->StopRec) {
-	$projects_list->RecCnt++;
-	if (intval($projects_list->RecCnt) >= intval($projects_list->StartRec)) {
-		$projects_list->RowCnt++;
+$images->RowType = EW_ROWTYPE_AGGREGATEINIT;
+$images->ResetAttrs();
+$images_list->RenderRow();
+while ($images_list->RecCnt < $images_list->StopRec) {
+	$images_list->RecCnt++;
+	if (intval($images_list->RecCnt) >= intval($images_list->StartRec)) {
+		$images_list->RowCnt++;
 
 		// Set up key count
-		$projects_list->KeyCount = $projects_list->RowIndex;
+		$images_list->KeyCount = $images_list->RowIndex;
 
 		// Init row class and style
-		$projects->ResetAttrs();
-		$projects->CssClass = "";
-		if ($projects->CurrentAction == "gridadd") {
+		$images->ResetAttrs();
+		$images->CssClass = "";
+		if ($images->CurrentAction == "gridadd") {
 		} else {
-			$projects_list->LoadRowValues($projects_list->Recordset); // Load row values
+			$images_list->LoadRowValues($images_list->Recordset); // Load row values
 		}
-		$projects->RowType = EW_ROWTYPE_VIEW; // Render view
+		$images->RowType = EW_ROWTYPE_VIEW; // Render view
 
 		// Set up row id / data-rowindex
-		$projects->RowAttrs = array_merge($projects->RowAttrs, array('data-rowindex'=>$projects_list->RowCnt, 'id'=>'r' . $projects_list->RowCnt . '_projects', 'data-rowtype'=>$projects->RowType));
+		$images->RowAttrs = array_merge($images->RowAttrs, array('data-rowindex'=>$images_list->RowCnt, 'id'=>'r' . $images_list->RowCnt . '_images', 'data-rowtype'=>$images->RowType));
 
 		// Render row
-		$projects_list->RenderRow();
+		$images_list->RenderRow();
 
 		// Render list options
-		$projects_list->RenderListOptions();
+		$images_list->RenderListOptions();
 ?>
-	<tr<?php echo $projects->RowAttributes() ?>>
+	<tr<?php echo $images->RowAttributes() ?>>
 <?php
 
 // Render list options (body, left)
-$projects_list->ListOptions->Render("body", "left", $projects_list->RowCnt);
+$images_list->ListOptions->Render("body", "left", $images_list->RowCnt);
 ?>
-	<?php if ($projects->title->Visible) { // title ?>
-		<td data-name="title"<?php echo $projects->title->CellAttributes() ?>>
-<span id="el<?php echo $projects_list->RowCnt ?>_projects_title" class="projects_title">
-<span<?php echo $projects->title->ViewAttributes() ?>>
-<?php echo $projects->title->ListViewValue() ?></span>
+	<?php if ($images->image_name->Visible) { // image_name ?>
+		<td data-name="image_name"<?php echo $images->image_name->CellAttributes() ?>>
+<span id="el<?php echo $images_list->RowCnt ?>_images_image_name" class="images_image_name">
+<span<?php echo $images->image_name->ViewAttributes() ?>>
+<?php echo ew_GetFileViewTag($images->image_name, $images->image_name->ListViewValue()) ?>
 </span>
-<a id="<?php echo $projects_list->PageObjName . "_row_" . $projects_list->RowCnt ?>"></a></td>
+</span>
+<a id="<?php echo $images_list->PageObjName . "_row_" . $images_list->RowCnt ?>"></a></td>
 	<?php } ?>
 <?php
 
 // Render list options (body, right)
-$projects_list->ListOptions->Render("body", "right", $projects_list->RowCnt);
+$images_list->ListOptions->Render("body", "right", $images_list->RowCnt);
 ?>
 	</tr>
 <?php
 	}
-	if ($projects->CurrentAction <> "gridadd")
-		$projects_list->Recordset->MoveNext();
+	if ($images->CurrentAction <> "gridadd")
+		$images_list->Recordset->MoveNext();
 }
 ?>
 </tbody>
 </table>
 <?php } ?>
-<?php if ($projects->CurrentAction == "") { ?>
+<?php if ($images->CurrentAction == "") { ?>
 <input type="hidden" name="a_list" id="a_list" value="">
 <?php } ?>
 </div>
@@ -1838,60 +1827,60 @@ $projects_list->ListOptions->Render("body", "right", $projects_list->RowCnt);
 <?php
 
 // Close recordset
-if ($projects_list->Recordset)
-	$projects_list->Recordset->Close();
+if ($images_list->Recordset)
+	$images_list->Recordset->Close();
 ?>
 <div class="panel-footer ewGridLowerPanel">
-<?php if ($projects->CurrentAction <> "gridadd" && $projects->CurrentAction <> "gridedit") { ?>
+<?php if ($images->CurrentAction <> "gridadd" && $images->CurrentAction <> "gridedit") { ?>
 <form name="ewPagerForm" class="ewForm form-inline ewPagerForm" action="<?php echo ew_CurrentPage() ?>">
-<?php if (!isset($projects_list->Pager)) $projects_list->Pager = new cPrevNextPager($projects_list->StartRec, $projects_list->DisplayRecs, $projects_list->TotalRecs) ?>
-<?php if ($projects_list->Pager->RecordCount > 0) { ?>
+<?php if (!isset($images_list->Pager)) $images_list->Pager = new cPrevNextPager($images_list->StartRec, $images_list->DisplayRecs, $images_list->TotalRecs) ?>
+<?php if ($images_list->Pager->RecordCount > 0) { ?>
 <div class="ewPager">
 <span><?php echo $Language->Phrase("Page") ?>&nbsp;</span>
 <div class="ewPrevNext"><div class="input-group">
 <div class="input-group-btn">
 <!--first page button-->
-	<?php if ($projects_list->Pager->FirstButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerFirst") ?>" href="<?php echo $projects_list->PageUrl() ?>start=<?php echo $projects_list->Pager->FirstButton->Start ?>"><span class="icon-first ewIcon"></span></a>
+	<?php if ($images_list->Pager->FirstButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerFirst") ?>" href="<?php echo $images_list->PageUrl() ?>start=<?php echo $images_list->Pager->FirstButton->Start ?>"><span class="icon-first ewIcon"></span></a>
 	<?php } else { ?>
 	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerFirst") ?>"><span class="icon-first ewIcon"></span></a>
 	<?php } ?>
 <!--previous page button-->
-	<?php if ($projects_list->Pager->PrevButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerPrevious") ?>" href="<?php echo $projects_list->PageUrl() ?>start=<?php echo $projects_list->Pager->PrevButton->Start ?>"><span class="icon-prev ewIcon"></span></a>
+	<?php if ($images_list->Pager->PrevButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerPrevious") ?>" href="<?php echo $images_list->PageUrl() ?>start=<?php echo $images_list->Pager->PrevButton->Start ?>"><span class="icon-prev ewIcon"></span></a>
 	<?php } else { ?>
 	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerPrevious") ?>"><span class="icon-prev ewIcon"></span></a>
 	<?php } ?>
 </div>
 <!--current page number-->
-	<input class="form-control input-sm" type="text" name="<?php echo EW_TABLE_PAGE_NO ?>" value="<?php echo $projects_list->Pager->CurrentPage ?>">
+	<input class="form-control input-sm" type="text" name="<?php echo EW_TABLE_PAGE_NO ?>" value="<?php echo $images_list->Pager->CurrentPage ?>">
 <div class="input-group-btn">
 <!--next page button-->
-	<?php if ($projects_list->Pager->NextButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerNext") ?>" href="<?php echo $projects_list->PageUrl() ?>start=<?php echo $projects_list->Pager->NextButton->Start ?>"><span class="icon-next ewIcon"></span></a>
+	<?php if ($images_list->Pager->NextButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerNext") ?>" href="<?php echo $images_list->PageUrl() ?>start=<?php echo $images_list->Pager->NextButton->Start ?>"><span class="icon-next ewIcon"></span></a>
 	<?php } else { ?>
 	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerNext") ?>"><span class="icon-next ewIcon"></span></a>
 	<?php } ?>
 <!--last page button-->
-	<?php if ($projects_list->Pager->LastButton->Enabled) { ?>
-	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerLast") ?>" href="<?php echo $projects_list->PageUrl() ?>start=<?php echo $projects_list->Pager->LastButton->Start ?>"><span class="icon-last ewIcon"></span></a>
+	<?php if ($images_list->Pager->LastButton->Enabled) { ?>
+	<a class="btn btn-default btn-sm" title="<?php echo $Language->Phrase("PagerLast") ?>" href="<?php echo $images_list->PageUrl() ?>start=<?php echo $images_list->Pager->LastButton->Start ?>"><span class="icon-last ewIcon"></span></a>
 	<?php } else { ?>
 	<a class="btn btn-default btn-sm disabled" title="<?php echo $Language->Phrase("PagerLast") ?>"><span class="icon-last ewIcon"></span></a>
 	<?php } ?>
 </div>
 </div>
 </div>
-<span>&nbsp;<?php echo $Language->Phrase("of") ?>&nbsp;<?php echo $projects_list->Pager->PageCount ?></span>
+<span>&nbsp;<?php echo $Language->Phrase("of") ?>&nbsp;<?php echo $images_list->Pager->PageCount ?></span>
 </div>
 <div class="ewPager ewRec">
-	<span><?php echo $Language->Phrase("Record") ?>&nbsp;<?php echo $projects_list->Pager->FromIndex ?>&nbsp;<?php echo $Language->Phrase("To") ?>&nbsp;<?php echo $projects_list->Pager->ToIndex ?>&nbsp;<?php echo $Language->Phrase("Of") ?>&nbsp;<?php echo $projects_list->Pager->RecordCount ?></span>
+	<span><?php echo $Language->Phrase("Record") ?>&nbsp;<?php echo $images_list->Pager->FromIndex ?>&nbsp;<?php echo $Language->Phrase("To") ?>&nbsp;<?php echo $images_list->Pager->ToIndex ?>&nbsp;<?php echo $Language->Phrase("Of") ?>&nbsp;<?php echo $images_list->Pager->RecordCount ?></span>
 </div>
 <?php } ?>
 </form>
 <?php } ?>
 <div class="ewListOtherOptions">
 <?php
-	foreach ($projects_list->OtherOptions as &$option)
+	foreach ($images_list->OtherOptions as &$option)
 		$option->Render("body", "bottom");
 ?>
 </div>
@@ -1899,10 +1888,10 @@ if ($projects_list->Recordset)
 </div>
 </div>
 <?php } ?>
-<?php if ($projects_list->TotalRecs == 0 && $projects->CurrentAction == "") { // Show other options ?>
+<?php if ($images_list->TotalRecs == 0 && $images->CurrentAction == "") { // Show other options ?>
 <div class="ewListOtherOptions">
 <?php
-	foreach ($projects_list->OtherOptions as &$option) {
+	foreach ($images_list->OtherOptions as &$option) {
 		$option->ButtonClass = "";
 		$option->Render("body", "");
 	}
@@ -1911,12 +1900,12 @@ if ($projects_list->Recordset)
 <div class="clearfix"></div>
 <?php } ?>
 <script type="text/javascript">
-fprojectslistsrch.Init();
-fprojectslistsrch.FilterList = <?php echo $projects_list->GetFilterList() ?>;
-fprojectslist.Init();
+fimageslistsrch.Init();
+fimageslistsrch.FilterList = <?php echo $images_list->GetFilterList() ?>;
+fimageslist.Init();
 </script>
 <?php
-$projects_list->ShowPageFooter();
+$images_list->ShowPageFooter();
 if (EW_DEBUG_ENABLED)
 	echo ew_DebugMsg();
 ?>
@@ -1928,5 +1917,5 @@ if (EW_DEBUG_ENABLED)
 </script>
 <?php include_once "footer.php" ?>
 <?php
-$projects_list->Page_Terminate();
+$images_list->Page_Terminate();
 ?>

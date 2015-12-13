@@ -1,19 +1,16 @@
 <?php
 
 // Global variable for table object
-$projects = NULL;
+$images = NULL;
 
 //
-// Table class for projects
+// Table class for images
 //
-class cprojects extends cTable {
-	var $id;
-	var $title;
-	var $images;
-	var $intro;
-	var $full_intro;
-	var $details;
-	var $livelink;
+class cimages extends cTable {
+	var $image_id;
+	var $p_id;
+	var $image_name;
+	var $image_detail;
 
 	//
 	// Table class constructor
@@ -23,12 +20,12 @@ class cprojects extends cTable {
 
 		// Language object
 		if (!isset($Language)) $Language = new cLanguage();
-		$this->TableVar = 'projects';
-		$this->TableName = 'projects';
+		$this->TableVar = 'images';
+		$this->TableName = 'images';
 		$this->TableType = 'TABLE';
 
 		// Update Table
-		$this->UpdateTable = "`projects`";
+		$this->UpdateTable = "`images`";
 		$this->DBID = 'DB';
 		$this->ExportAll = TRUE;
 		$this->ExportPageBreakCount = 0; // Page break per every n record (PDF only)
@@ -45,34 +42,23 @@ class cprojects extends cTable {
 		$this->UserIDAllowSecurity = 0; // User ID Allow
 		$this->BasicSearch = new cBasicSearch($this->TableVar);
 
-		// id
-		$this->id = new cField('projects', 'projects', 'x_id', 'id', '`id`', '`id`', 3, -1, FALSE, '`id`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'NO');
-		$this->id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
-		$this->fields['id'] = &$this->id;
+		// image_id
+		$this->image_id = new cField('images', 'images', 'x_image_id', 'image_id', '`image_id`', '`image_id`', 3, -1, FALSE, '`image_id`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'NO');
+		$this->image_id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
+		$this->fields['image_id'] = &$this->image_id;
 
-		// title
-		$this->title = new cField('projects', 'projects', 'x_title', 'title', '`title`', '`title`', 201, -1, FALSE, '`title`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXTAREA');
-		$this->fields['title'] = &$this->title;
+		// p_id
+		$this->p_id = new cField('images', 'images', 'x_p_id', 'p_id', '`p_id`', '`p_id`', 3, -1, FALSE, '`p_id`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'SELECT');
+		$this->p_id->FldDefaultErrMsg = $Language->Phrase("IncorrectInteger");
+		$this->fields['p_id'] = &$this->p_id;
 
-		// images
-		$this->images = new cField('projects', 'projects', 'x_images', 'images', '`images`', '`images`', 201, -1, TRUE, '`images`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'FILE');
-		$this->fields['images'] = &$this->images;
+		// image_name
+		$this->image_name = new cField('images', 'images', 'x_image_name', 'image_name', '`image_name`', '`image_name`', 200, -1, TRUE, '`image_name`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'FILE');
+		$this->fields['image_name'] = &$this->image_name;
 
-		// intro
-		$this->intro = new cField('projects', 'projects', 'x_intro', 'intro', '`intro`', '`intro`', 201, -1, FALSE, '`intro`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXTAREA');
-		$this->fields['intro'] = &$this->intro;
-
-		// full_intro
-		$this->full_intro = new cField('projects', 'projects', 'x_full_intro', 'full_intro', '`full_intro`', '`full_intro`', 201, -1, FALSE, '`full_intro`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXTAREA');
-		$this->fields['full_intro'] = &$this->full_intro;
-
-		// details
-		$this->details = new cField('projects', 'projects', 'x_details', 'details', '`details`', '`details`', 201, -1, FALSE, '`details`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXTAREA');
-		$this->fields['details'] = &$this->details;
-
-		// livelink
-		$this->livelink = new cField('projects', 'projects', 'x_livelink', 'livelink', '`livelink`', '`livelink`', 201, -1, FALSE, '`livelink`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXT');
-		$this->fields['livelink'] = &$this->livelink;
+		// image_detail
+		$this->image_detail = new cField('images', 'images', 'x_image_detail', 'image_detail', '`image_detail`', '`image_detail`', 201, -1, FALSE, '`image_detail`', FALSE, FALSE, FALSE, 'FORMATTED TEXT', 'TEXTAREA');
+		$this->fields['image_detail'] = &$this->image_detail;
 	}
 
 	// Single column sort
@@ -96,7 +82,7 @@ class cprojects extends cTable {
 	var $_SqlFrom = "";
 
 	function getSqlFrom() { // From
-		return ($this->_SqlFrom <> "") ? $this->_SqlFrom : "`projects`";
+		return ($this->_SqlFrom <> "") ? $this->_SqlFrom : "`images`";
 	}
 
 	function SqlFrom() { // For backward compatibility
@@ -349,8 +335,8 @@ class cprojects extends cTable {
 		if (is_array($where))
 			$where = $this->ArrayToFilter($where);
 		if ($rs) {
-			if (array_key_exists('id', $rs))
-				ew_AddFilter($where, ew_QuotedName('id', $this->DBID) . '=' . ew_QuotedValue($rs['id'], $this->id->FldDataType, $this->DBID));
+			if (array_key_exists('image_id', $rs))
+				ew_AddFilter($where, ew_QuotedName('image_id', $this->DBID) . '=' . ew_QuotedValue($rs['image_id'], $this->image_id->FldDataType, $this->DBID));
 		}
 		$filter = ($curfilter) ? $this->CurrentFilter : "";
 		ew_AddFilter($filter, $where);
@@ -369,15 +355,15 @@ class cprojects extends cTable {
 
 	// Key filter WHERE clause
 	function SqlKeyFilter() {
-		return "`id` = @id@";
+		return "`image_id` = @image_id@";
 	}
 
 	// Key filter
 	function KeyFilter() {
 		$sKeyFilter = $this->SqlKeyFilter();
-		if (!is_numeric($this->id->CurrentValue))
+		if (!is_numeric($this->image_id->CurrentValue))
 			$sKeyFilter = "0=1"; // Invalid key
-		$sKeyFilter = str_replace("@id@", ew_AdjustSql($this->id->CurrentValue, $this->DBID), $sKeyFilter); // Replace key value
+		$sKeyFilter = str_replace("@image_id@", ew_AdjustSql($this->image_id->CurrentValue, $this->DBID), $sKeyFilter); // Replace key value
 		return $sKeyFilter;
 	}
 
@@ -391,7 +377,7 @@ class cprojects extends cTable {
 		if (@$_SESSION[$name] <> "") {
 			return $_SESSION[$name];
 		} else {
-			return "projectslist.php";
+			return "imageslist.php";
 		}
 	}
 
@@ -401,28 +387,28 @@ class cprojects extends cTable {
 
 	// List URL
 	function GetListUrl() {
-		return "projectslist.php";
+		return "imageslist.php";
 	}
 
 	// View URL
 	function GetViewUrl($parm = "") {
 		if ($parm <> "")
-			return $this->KeyUrl("projectsview.php", $this->UrlParm($parm));
+			return $this->KeyUrl("imagesview.php", $this->UrlParm($parm));
 		else
-			return $this->KeyUrl("projectsview.php", $this->UrlParm(EW_TABLE_SHOW_DETAIL . "="));
+			return $this->KeyUrl("imagesview.php", $this->UrlParm(EW_TABLE_SHOW_DETAIL . "="));
 	}
 
 	// Add URL
 	function GetAddUrl($parm = "") {
 		if ($parm <> "")
-			return "projectsadd.php?" . $this->UrlParm($parm);
+			return "imagesadd.php?" . $this->UrlParm($parm);
 		else
-			return "projectsadd.php";
+			return "imagesadd.php";
 	}
 
 	// Edit URL
 	function GetEditUrl($parm = "") {
-		return $this->KeyUrl("projectsedit.php", $this->UrlParm($parm));
+		return $this->KeyUrl("imagesedit.php", $this->UrlParm($parm));
 	}
 
 	// Inline edit URL
@@ -432,7 +418,7 @@ class cprojects extends cTable {
 
 	// Copy URL
 	function GetCopyUrl($parm = "") {
-		return $this->KeyUrl("projectsadd.php", $this->UrlParm($parm));
+		return $this->KeyUrl("imagesadd.php", $this->UrlParm($parm));
 	}
 
 	// Inline copy URL
@@ -442,12 +428,12 @@ class cprojects extends cTable {
 
 	// Delete URL
 	function GetDeleteUrl() {
-		return $this->KeyUrl("projectsdelete.php", $this->UrlParm());
+		return $this->KeyUrl("imagesdelete.php", $this->UrlParm());
 	}
 
 	function KeyToJson() {
 		$json = "";
-		$json .= "id:" . ew_VarToJson($this->id->CurrentValue, "number", "'");
+		$json .= "image_id:" . ew_VarToJson($this->image_id->CurrentValue, "number", "'");
 		return "{" . $json . "}";
 	}
 
@@ -455,8 +441,8 @@ class cprojects extends cTable {
 	function KeyUrl($url, $parm = "") {
 		$sUrl = $url . "?";
 		if ($parm <> "") $sUrl .= $parm . "&";
-		if (!is_null($this->id->CurrentValue)) {
-			$sUrl .= "id=" . urlencode($this->id->CurrentValue);
+		if (!is_null($this->image_id->CurrentValue)) {
+			$sUrl .= "image_id=" . urlencode($this->image_id->CurrentValue);
 		} else {
 			return "javascript:ew_Alert(ewLanguage.Phrase('InvalidRecord'));";
 		}
@@ -489,7 +475,7 @@ class cprojects extends cTable {
 			$cnt = count($arKeys);
 		} elseif (!empty($_GET) || !empty($_POST)) {
 			$isPost = ew_IsHttpPost();
-			$arKeys[] = $isPost ? ew_StripSlashes(@$_POST["id"]) : ew_StripSlashes(@$_GET["id"]); // id
+			$arKeys[] = $isPost ? ew_StripSlashes(@$_POST["image_id"]) : ew_StripSlashes(@$_GET["image_id"]); // image_id
 
 			//return $arKeys; // Do not return yet, so the values will also be checked by the following code
 		}
@@ -510,7 +496,7 @@ class cprojects extends cTable {
 		$sKeyFilter = "";
 		foreach ($arKeys as $key) {
 			if ($sKeyFilter <> "") $sKeyFilter .= " OR ";
-			$this->id->CurrentValue = $key;
+			$this->image_id->CurrentValue = $key;
 			$sKeyFilter .= "(" . $this->KeyFilter() . ")";
 		}
 		return $sKeyFilter;
@@ -531,13 +517,10 @@ class cprojects extends cTable {
 
 	// Load row values from recordset
 	function LoadListRowValues(&$rs) {
-		$this->id->setDbValue($rs->fields('id'));
-		$this->title->setDbValue($rs->fields('title'));
-		$this->images->Upload->DbValue = $rs->fields('images');
-		$this->intro->setDbValue($rs->fields('intro'));
-		$this->full_intro->setDbValue($rs->fields('full_intro'));
-		$this->details->setDbValue($rs->fields('details'));
-		$this->livelink->setDbValue($rs->fields('livelink'));
+		$this->image_id->setDbValue($rs->fields('image_id'));
+		$this->p_id->setDbValue($rs->fields('p_id'));
+		$this->image_name->Upload->DbValue = $rs->fields('image_name');
+		$this->image_detail->setDbValue($rs->fields('image_detail'));
 	}
 
 	// Render list row values
@@ -548,82 +531,70 @@ class cprojects extends cTable {
 		$this->Row_Rendering();
 
    // Common render codes
-		// id
-		// title
-		// images
-		// intro
-		// full_intro
-		// details
-		// livelink
-		// id
+		// image_id
+		// p_id
+		// image_name
+		// image_detail
+		// image_id
 
-		$this->id->ViewValue = $this->id->CurrentValue;
-		$this->id->ViewCustomAttributes = "";
+		$this->image_id->ViewValue = $this->image_id->CurrentValue;
+		$this->image_id->ViewCustomAttributes = "";
 
-		// title
-		$this->title->ViewValue = $this->title->CurrentValue;
-		$this->title->ViewCustomAttributes = "";
-
-		// images
-		$this->images->UploadPath = "/uploads";
-		if (!ew_Empty($this->images->Upload->DbValue)) {
-			$this->images->ViewValue = $this->images->Upload->DbValue;
+		// p_id
+		if (strval($this->p_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->p_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `title` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `projects`";
+		$sWhereWrk = "";
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->p_id, $sWhereWrk); // Call Lookup selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$this->p_id->ViewValue = $this->p_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->p_id->ViewValue = $this->p_id->CurrentValue;
+			}
 		} else {
-			$this->images->ViewValue = "";
+			$this->p_id->ViewValue = NULL;
 		}
-		$this->images->ViewCustomAttributes = "";
+		$this->p_id->ViewCustomAttributes = "";
 
-		// intro
-		$this->intro->ViewValue = $this->intro->CurrentValue;
-		$this->intro->ViewCustomAttributes = "";
+		// image_name
+		$this->image_name->UploadPath = "/projectimages";
+		if (!ew_Empty($this->image_name->Upload->DbValue)) {
+			$this->image_name->ViewValue = $this->image_name->Upload->DbValue;
+		} else {
+			$this->image_name->ViewValue = "";
+		}
+		$this->image_name->ViewCustomAttributes = "";
 
-		// full_intro
-		$this->full_intro->ViewValue = $this->full_intro->CurrentValue;
-		$this->full_intro->ViewCustomAttributes = "";
+		// image_detail
+		$this->image_detail->ViewValue = $this->image_detail->CurrentValue;
+		$this->image_detail->ViewCustomAttributes = "";
 
-		// details
-		$this->details->ViewValue = $this->details->CurrentValue;
-		$this->details->ViewCustomAttributes = "";
+		// image_id
+		$this->image_id->LinkCustomAttributes = "";
+		$this->image_id->HrefValue = "";
+		$this->image_id->TooltipValue = "";
 
-		// livelink
-		$this->livelink->ViewValue = $this->livelink->CurrentValue;
-		$this->livelink->ViewCustomAttributes = "";
+		// p_id
+		$this->p_id->LinkCustomAttributes = "";
+		$this->p_id->HrefValue = "";
+		$this->p_id->TooltipValue = "";
 
-		// id
-		$this->id->LinkCustomAttributes = "";
-		$this->id->HrefValue = "";
-		$this->id->TooltipValue = "";
+		// image_name
+		$this->image_name->LinkCustomAttributes = "";
+		$this->image_name->HrefValue = "";
+		$this->image_name->HrefValue2 = $this->image_name->UploadPath . $this->image_name->Upload->DbValue;
+		$this->image_name->TooltipValue = "";
 
-		// title
-		$this->title->LinkCustomAttributes = "";
-		$this->title->HrefValue = "";
-		$this->title->TooltipValue = "";
-
-		// images
-		$this->images->LinkCustomAttributes = "";
-		$this->images->HrefValue = "";
-		$this->images->HrefValue2 = $this->images->UploadPath . $this->images->Upload->DbValue;
-		$this->images->TooltipValue = "";
-
-		// intro
-		$this->intro->LinkCustomAttributes = "";
-		$this->intro->HrefValue = "";
-		$this->intro->TooltipValue = "";
-
-		// full_intro
-		$this->full_intro->LinkCustomAttributes = "";
-		$this->full_intro->HrefValue = "";
-		$this->full_intro->TooltipValue = "";
-
-		// details
-		$this->details->LinkCustomAttributes = "";
-		$this->details->HrefValue = "";
-		$this->details->TooltipValue = "";
-
-		// livelink
-		$this->livelink->LinkCustomAttributes = "";
-		$this->livelink->HrefValue = "";
-		$this->livelink->TooltipValue = "";
+		// image_detail
+		$this->image_detail->LinkCustomAttributes = "";
+		$this->image_detail->HrefValue = "";
+		$this->image_detail->TooltipValue = "";
 
 		// Call Row Rendered event
 		$this->Row_Rendered();
@@ -636,53 +607,33 @@ class cprojects extends cTable {
 		// Call Row Rendering event
 		$this->Row_Rendering();
 
-		// id
-		$this->id->EditAttrs["class"] = "form-control";
-		$this->id->EditCustomAttributes = "";
-		$this->id->EditValue = $this->id->CurrentValue;
-		$this->id->ViewCustomAttributes = "";
+		// image_id
+		$this->image_id->EditAttrs["class"] = "form-control";
+		$this->image_id->EditCustomAttributes = "";
+		$this->image_id->EditValue = $this->image_id->CurrentValue;
+		$this->image_id->ViewCustomAttributes = "";
 
-		// title
-		$this->title->EditAttrs["class"] = "form-control";
-		$this->title->EditCustomAttributes = "";
-		$this->title->EditValue = $this->title->CurrentValue;
-		$this->title->PlaceHolder = ew_RemoveHtml($this->title->FldCaption());
+		// p_id
+		$this->p_id->EditAttrs["class"] = "form-control";
+		$this->p_id->EditCustomAttributes = "";
 
-		// images
-		$this->images->EditAttrs["class"] = "form-control";
-		$this->images->EditCustomAttributes = "";
-		$this->images->UploadPath = "/uploads";
-		if (!ew_Empty($this->images->Upload->DbValue)) {
-			$this->images->EditValue = $this->images->Upload->DbValue;
+		// image_name
+		$this->image_name->EditAttrs["class"] = "form-control";
+		$this->image_name->EditCustomAttributes = "";
+		$this->image_name->UploadPath = "/projectimages";
+		if (!ew_Empty($this->image_name->Upload->DbValue)) {
+			$this->image_name->EditValue = $this->image_name->Upload->DbValue;
 		} else {
-			$this->images->EditValue = "";
+			$this->image_name->EditValue = "";
 		}
-		if (!ew_Empty($this->images->CurrentValue))
-			$this->images->Upload->FileName = $this->images->CurrentValue;
+		if (!ew_Empty($this->image_name->CurrentValue))
+			$this->image_name->Upload->FileName = $this->image_name->CurrentValue;
 
-		// intro
-		$this->intro->EditAttrs["class"] = "form-control";
-		$this->intro->EditCustomAttributes = "";
-		$this->intro->EditValue = $this->intro->CurrentValue;
-		$this->intro->PlaceHolder = ew_RemoveHtml($this->intro->FldCaption());
-
-		// full_intro
-		$this->full_intro->EditAttrs["class"] = "form-control";
-		$this->full_intro->EditCustomAttributes = "";
-		$this->full_intro->EditValue = $this->full_intro->CurrentValue;
-		$this->full_intro->PlaceHolder = ew_RemoveHtml($this->full_intro->FldCaption());
-
-		// details
-		$this->details->EditAttrs["class"] = "form-control";
-		$this->details->EditCustomAttributes = "";
-		$this->details->EditValue = $this->details->CurrentValue;
-		$this->details->PlaceHolder = ew_RemoveHtml($this->details->FldCaption());
-
-		// livelink
-		$this->livelink->EditAttrs["class"] = "form-control";
-		$this->livelink->EditCustomAttributes = "";
-		$this->livelink->EditValue = $this->livelink->CurrentValue;
-		$this->livelink->PlaceHolder = ew_RemoveHtml($this->livelink->FldCaption());
+		// image_detail
+		$this->image_detail->EditAttrs["class"] = "form-control";
+		$this->image_detail->EditCustomAttributes = "";
+		$this->image_detail->EditValue = $this->image_detail->CurrentValue;
+		$this->image_detail->PlaceHolder = ew_RemoveHtml($this->image_detail->FldCaption());
 
 		// Call Row Rendered event
 		$this->Row_Rendered();
@@ -711,15 +662,14 @@ class cprojects extends cTable {
 			if ($Doc->Horizontal) { // Horizontal format, write header
 				$Doc->BeginExportRow();
 				if ($ExportPageType == "view") {
-					if ($this->id->Exportable) $Doc->ExportCaption($this->id);
-					if ($this->title->Exportable) $Doc->ExportCaption($this->title);
-					if ($this->images->Exportable) $Doc->ExportCaption($this->images);
-					if ($this->intro->Exportable) $Doc->ExportCaption($this->intro);
-					if ($this->full_intro->Exportable) $Doc->ExportCaption($this->full_intro);
-					if ($this->details->Exportable) $Doc->ExportCaption($this->details);
-					if ($this->livelink->Exportable) $Doc->ExportCaption($this->livelink);
+					if ($this->image_id->Exportable) $Doc->ExportCaption($this->image_id);
+					if ($this->p_id->Exportable) $Doc->ExportCaption($this->p_id);
+					if ($this->image_name->Exportable) $Doc->ExportCaption($this->image_name);
+					if ($this->image_detail->Exportable) $Doc->ExportCaption($this->image_detail);
 				} else {
-					if ($this->id->Exportable) $Doc->ExportCaption($this->id);
+					if ($this->image_id->Exportable) $Doc->ExportCaption($this->image_id);
+					if ($this->p_id->Exportable) $Doc->ExportCaption($this->p_id);
+					if ($this->image_name->Exportable) $Doc->ExportCaption($this->image_name);
 				}
 				$Doc->EndExportRow();
 			}
@@ -751,15 +701,14 @@ class cprojects extends cTable {
 				if (!$Doc->ExportCustom) {
 					$Doc->BeginExportRow($RowCnt); // Allow CSS styles if enabled
 					if ($ExportPageType == "view") {
-						if ($this->id->Exportable) $Doc->ExportField($this->id);
-						if ($this->title->Exportable) $Doc->ExportField($this->title);
-						if ($this->images->Exportable) $Doc->ExportField($this->images);
-						if ($this->intro->Exportable) $Doc->ExportField($this->intro);
-						if ($this->full_intro->Exportable) $Doc->ExportField($this->full_intro);
-						if ($this->details->Exportable) $Doc->ExportField($this->details);
-						if ($this->livelink->Exportable) $Doc->ExportField($this->livelink);
+						if ($this->image_id->Exportable) $Doc->ExportField($this->image_id);
+						if ($this->p_id->Exportable) $Doc->ExportField($this->p_id);
+						if ($this->image_name->Exportable) $Doc->ExportField($this->image_name);
+						if ($this->image_detail->Exportable) $Doc->ExportField($this->image_detail);
 					} else {
-						if ($this->id->Exportable) $Doc->ExportField($this->id);
+						if ($this->image_id->Exportable) $Doc->ExportField($this->image_id);
+						if ($this->p_id->Exportable) $Doc->ExportField($this->p_id);
+						if ($this->image_name->Exportable) $Doc->ExportField($this->image_name);
 					}
 					$Doc->EndExportRow();
 				}

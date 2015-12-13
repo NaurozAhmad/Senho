@@ -5,7 +5,7 @@ ob_start(); // Turn on output buffering
 <?php include_once "ewcfg12.php" ?>
 <?php include_once ((EW_USE_ADODB) ? "adodb5/adodb.inc.php" : "ewmysql12.php") ?>
 <?php include_once "phpfn12.php" ?>
-<?php include_once "projectsinfo.php" ?>
+<?php include_once "imagesinfo.php" ?>
 <?php include_once "userfn12.php" ?>
 <?php
 
@@ -13,9 +13,9 @@ ob_start(); // Turn on output buffering
 // Page class
 //
 
-$projects_delete = NULL; // Initialize page object first
+$images_delete = NULL; // Initialize page object first
 
-class cprojects_delete extends cprojects {
+class cimages_delete extends cimages {
 
 	// Page ID
 	var $PageID = 'delete';
@@ -24,10 +24,10 @@ class cprojects_delete extends cprojects {
 	var $ProjectID = "{D635DDF5-EC98-4B6F-806D-28D8D9C856B8}";
 
 	// Table name
-	var $TableName = 'projects';
+	var $TableName = 'images';
 
 	// Page object name
-	var $PageObjName = 'projects_delete';
+	var $PageObjName = 'images_delete';
 
 	// Page name
 	function PageName() {
@@ -220,10 +220,10 @@ class cprojects_delete extends cprojects {
 		// Parent constuctor
 		parent::__construct();
 
-		// Table object (projects)
-		if (!isset($GLOBALS["projects"]) || get_class($GLOBALS["projects"]) == "cprojects") {
-			$GLOBALS["projects"] = &$this;
-			$GLOBALS["Table"] = &$GLOBALS["projects"];
+		// Table object (images)
+		if (!isset($GLOBALS["images"]) || get_class($GLOBALS["images"]) == "cimages") {
+			$GLOBALS["images"] = &$this;
+			$GLOBALS["Table"] = &$GLOBALS["images"];
 		}
 
 		// Page ID
@@ -232,7 +232,7 @@ class cprojects_delete extends cprojects {
 
 		// Table name (for backward compatibility)
 		if (!defined("EW_TABLE_NAME"))
-			define("EW_TABLE_NAME", 'projects', TRUE);
+			define("EW_TABLE_NAME", 'images', TRUE);
 
 		// Start timer
 		if (!isset($GLOBALS["gTimer"])) $GLOBALS["gTimer"] = new cTimer();
@@ -283,13 +283,13 @@ class cprojects_delete extends cprojects {
 		Page_Unloaded();
 
 		// Export
-		global $EW_EXPORT, $projects;
+		global $EW_EXPORT, $images;
 		if ($this->CustomExport <> "" && $this->CustomExport == $this->Export && array_key_exists($this->CustomExport, $EW_EXPORT)) {
 				$sContent = ob_get_contents();
 			if ($gsExportFile == "") $gsExportFile = $this->TableVar;
 			$class = $EW_EXPORT[$this->CustomExport];
 			if (class_exists($class)) {
-				$doc = new $class($projects);
+				$doc = new $class($images);
 				$doc->Text = $sContent;
 				if ($this->Export == "email")
 					echo $this->ExportEmail($doc->Text);
@@ -335,10 +335,10 @@ class cprojects_delete extends cprojects {
 		$this->RecKeys = $this->GetRecordKeys(); // Load record keys
 		$sFilter = $this->GetKeyFilter();
 		if ($sFilter == "")
-			$this->Page_Terminate("projectslist.php"); // Prevent SQL injection, return to list
+			$this->Page_Terminate("imageslist.php"); // Prevent SQL injection, return to list
 
 		// Set up filter (SQL WHHERE clause) and get return SQL
-		// SQL constructor in projects class, projectsinfo.php
+		// SQL constructor in images class, imagesinfo.php
 
 		$this->CurrentFilter = $sFilter;
 
@@ -414,27 +414,21 @@ class cprojects_delete extends cprojects {
 		// Call Row Selected event
 		$row = &$rs->fields;
 		$this->Row_Selected($row);
-		$this->id->setDbValue($rs->fields('id'));
-		$this->title->setDbValue($rs->fields('title'));
-		$this->images->Upload->DbValue = $rs->fields('images');
-		$this->images->CurrentValue = $this->images->Upload->DbValue;
-		$this->intro->setDbValue($rs->fields('intro'));
-		$this->full_intro->setDbValue($rs->fields('full_intro'));
-		$this->details->setDbValue($rs->fields('details'));
-		$this->livelink->setDbValue($rs->fields('livelink'));
+		$this->image_id->setDbValue($rs->fields('image_id'));
+		$this->p_id->setDbValue($rs->fields('p_id'));
+		$this->image_name->Upload->DbValue = $rs->fields('image_name');
+		$this->image_name->CurrentValue = $this->image_name->Upload->DbValue;
+		$this->image_detail->setDbValue($rs->fields('image_detail'));
 	}
 
 	// Load DbValue from recordset
 	function LoadDbValues(&$rs) {
 		if (!$rs || !is_array($rs) && $rs->EOF) return;
 		$row = is_array($rs) ? $rs : $rs->fields;
-		$this->id->DbValue = $row['id'];
-		$this->title->DbValue = $row['title'];
-		$this->images->Upload->DbValue = $row['images'];
-		$this->intro->DbValue = $row['intro'];
-		$this->full_intro->DbValue = $row['full_intro'];
-		$this->details->DbValue = $row['details'];
-		$this->livelink->DbValue = $row['livelink'];
+		$this->image_id->DbValue = $row['image_id'];
+		$this->p_id->DbValue = $row['p_id'];
+		$this->image_name->Upload->DbValue = $row['image_name'];
+		$this->image_detail->DbValue = $row['image_detail'];
 	}
 
 	// Render row values based on field settings
@@ -447,28 +441,53 @@ class cprojects_delete extends cprojects {
 		$this->Row_Rendering();
 
 		// Common render codes for all row types
-		// id
-		// title
-		// images
-		// intro
-		// full_intro
-		// details
-		// livelink
+		// image_id
+		// p_id
+		// image_name
+		// image_detail
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
-		// id
-		$this->id->ViewValue = $this->id->CurrentValue;
-		$this->id->ViewCustomAttributes = "";
+		// image_id
+		$this->image_id->ViewValue = $this->image_id->CurrentValue;
+		$this->image_id->ViewCustomAttributes = "";
 
-		// title
-		$this->title->ViewValue = $this->title->CurrentValue;
-		$this->title->ViewCustomAttributes = "";
+		// p_id
+		if (strval($this->p_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->p_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `title` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `projects`";
+		$sWhereWrk = "";
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->p_id, $sWhereWrk); // Call Lookup selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$this->p_id->ViewValue = $this->p_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->p_id->ViewValue = $this->p_id->CurrentValue;
+			}
+		} else {
+			$this->p_id->ViewValue = NULL;
+		}
+		$this->p_id->ViewCustomAttributes = "";
 
-			// title
-			$this->title->LinkCustomAttributes = "";
-			$this->title->HrefValue = "";
-			$this->title->TooltipValue = "";
+		// image_name
+		$this->image_name->UploadPath = "/projectimages";
+		if (!ew_Empty($this->image_name->Upload->DbValue)) {
+			$this->image_name->ViewValue = $this->image_name->Upload->DbValue;
+		} else {
+			$this->image_name->ViewValue = "";
+		}
+		$this->image_name->ViewCustomAttributes = "";
+
+			// image_name
+			$this->image_name->LinkCustomAttributes = "";
+			$this->image_name->HrefValue = "";
+			$this->image_name->HrefValue2 = $this->image_name->UploadPath . $this->image_name->Upload->DbValue;
+			$this->image_name->TooltipValue = "";
 		}
 
 		// Call Row Rendered event
@@ -518,7 +537,7 @@ class cprojects_delete extends cprojects {
 			foreach ($rsold as $row) {
 				$sThisKey = "";
 				if ($sThisKey <> "") $sThisKey .= $GLOBALS["EW_COMPOSITE_KEY_SEPARATOR"];
-				$sThisKey .= $row['id'];
+				$sThisKey .= $row['image_id'];
 				$conn->raiseErrorFn = $GLOBALS["EW_ERROR_FN"];
 				$DeleteRows = $this->Delete($row); // Delete
 				$conn->raiseErrorFn = '';
@@ -560,7 +579,7 @@ class cprojects_delete extends cprojects {
 		global $Breadcrumb, $Language;
 		$Breadcrumb = new cBreadcrumb();
 		$url = substr(ew_CurrentUrl(), strrpos(ew_CurrentUrl(), "/")+1);
-		$Breadcrumb->Add("list", $this->TableVar, "projectslist.php", "", $this->TableVar, TRUE);
+		$Breadcrumb->Add("list", $this->TableVar, "imageslist.php", "", $this->TableVar, TRUE);
 		$PageId = "delete";
 		$Breadcrumb->Add("delete", $PageId, $url);
 	}
@@ -630,29 +649,29 @@ class cprojects_delete extends cprojects {
 <?php
 
 // Create page object
-if (!isset($projects_delete)) $projects_delete = new cprojects_delete();
+if (!isset($images_delete)) $images_delete = new cimages_delete();
 
 // Page init
-$projects_delete->Page_Init();
+$images_delete->Page_Init();
 
 // Page main
-$projects_delete->Page_Main();
+$images_delete->Page_Main();
 
 // Global Page Rendering event (in userfn*.php)
 Page_Rendering();
 
 // Page Rendering event
-$projects_delete->Page_Render();
+$images_delete->Page_Render();
 ?>
 <?php include_once "header.php" ?>
 <script type="text/javascript">
 
 // Form object
 var CurrentPageID = EW_PAGE_ID = "delete";
-var CurrentForm = fprojectsdelete = new ew_Form("fprojectsdelete", "delete");
+var CurrentForm = fimagesdelete = new ew_Form("fimagesdelete", "delete");
 
 // Form_CustomValidate event
-fprojectsdelete.Form_CustomValidate = 
+fimagesdelete.Form_CustomValidate = 
  function(fobj) { // DO NOT CHANGE THIS LINE!
 
  	// Your custom validation code here, return false if invalid. 
@@ -661,9 +680,9 @@ fprojectsdelete.Form_CustomValidate =
 
 // Use JavaScript validation or not
 <?php if (EW_CLIENT_VALIDATE) { ?>
-fprojectsdelete.ValidateRequired = true;
+fimagesdelete.ValidateRequired = true;
 <?php } else { ?>
-fprojectsdelete.ValidateRequired = false; 
+fimagesdelete.ValidateRequired = false; 
 <?php } ?>
 
 // Dynamic selection lists
@@ -677,12 +696,12 @@ fprojectsdelete.ValidateRequired = false;
 <?php
 
 // Load records for display
-if ($projects_delete->Recordset = $projects_delete->LoadRecordset())
-	$projects_deleteTotalRecs = $projects_delete->Recordset->RecordCount(); // Get record count
-if ($projects_deleteTotalRecs <= 0) { // No record found, exit
-	if ($projects_delete->Recordset)
-		$projects_delete->Recordset->Close();
-	$projects_delete->Page_Terminate("projectslist.php"); // Return to list
+if ($images_delete->Recordset = $images_delete->LoadRecordset())
+	$images_deleteTotalRecs = $images_delete->Recordset->RecordCount(); // Get record count
+if ($images_deleteTotalRecs <= 0) { // No record found, exit
+	if ($images_delete->Recordset)
+		$images_delete->Recordset->Close();
+	$images_delete->Page_Terminate("imageslist.php"); // Return to list
 }
 ?>
 <div class="ewToolbar">
@@ -690,63 +709,64 @@ if ($projects_deleteTotalRecs <= 0) { // No record found, exit
 <?php echo $Language->SelectionForm(); ?>
 <div class="clearfix"></div>
 </div>
-<?php $projects_delete->ShowPageHeader(); ?>
+<?php $images_delete->ShowPageHeader(); ?>
 <?php
-$projects_delete->ShowMessage();
+$images_delete->ShowMessage();
 ?>
-<form name="fprojectsdelete" id="fprojectsdelete" class="form-inline ewForm ewDeleteForm" action="<?php echo ew_CurrentPage() ?>" method="post">
-<?php if ($projects_delete->CheckToken) { ?>
-<input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $projects_delete->Token ?>">
+<form name="fimagesdelete" id="fimagesdelete" class="form-inline ewForm ewDeleteForm" action="<?php echo ew_CurrentPage() ?>" method="post">
+<?php if ($images_delete->CheckToken) { ?>
+<input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $images_delete->Token ?>">
 <?php } ?>
-<input type="hidden" name="t" value="projects">
+<input type="hidden" name="t" value="images">
 <input type="hidden" name="a_delete" id="a_delete" value="D">
-<?php foreach ($projects_delete->RecKeys as $key) { ?>
+<?php foreach ($images_delete->RecKeys as $key) { ?>
 <?php $keyvalue = is_array($key) ? implode($EW_COMPOSITE_KEY_SEPARATOR, $key) : $key; ?>
 <input type="hidden" name="key_m[]" value="<?php echo ew_HtmlEncode($keyvalue) ?>">
 <?php } ?>
 <div class="ewGrid">
 <div class="<?php if (ew_IsResponsiveLayout()) { echo "table-responsive "; } ?>ewGridMiddlePanel">
 <table class="table ewTable">
-<?php echo $projects->TableCustomInnerHtml ?>
+<?php echo $images->TableCustomInnerHtml ?>
 	<thead>
 	<tr class="ewTableHeader">
-<?php if ($projects->title->Visible) { // title ?>
-		<th><span id="elh_projects_title" class="projects_title"><?php echo $projects->title->FldCaption() ?></span></th>
+<?php if ($images->image_name->Visible) { // image_name ?>
+		<th><span id="elh_images_image_name" class="images_image_name"><?php echo $images->image_name->FldCaption() ?></span></th>
 <?php } ?>
 	</tr>
 	</thead>
 	<tbody>
 <?php
-$projects_delete->RecCnt = 0;
+$images_delete->RecCnt = 0;
 $i = 0;
-while (!$projects_delete->Recordset->EOF) {
-	$projects_delete->RecCnt++;
-	$projects_delete->RowCnt++;
+while (!$images_delete->Recordset->EOF) {
+	$images_delete->RecCnt++;
+	$images_delete->RowCnt++;
 
 	// Set row properties
-	$projects->ResetAttrs();
-	$projects->RowType = EW_ROWTYPE_VIEW; // View
+	$images->ResetAttrs();
+	$images->RowType = EW_ROWTYPE_VIEW; // View
 
 	// Get the field contents
-	$projects_delete->LoadRowValues($projects_delete->Recordset);
+	$images_delete->LoadRowValues($images_delete->Recordset);
 
 	// Render row
-	$projects_delete->RenderRow();
+	$images_delete->RenderRow();
 ?>
-	<tr<?php echo $projects->RowAttributes() ?>>
-<?php if ($projects->title->Visible) { // title ?>
-		<td<?php echo $projects->title->CellAttributes() ?>>
-<span id="el<?php echo $projects_delete->RowCnt ?>_projects_title" class="projects_title">
-<span<?php echo $projects->title->ViewAttributes() ?>>
-<?php echo $projects->title->ListViewValue() ?></span>
+	<tr<?php echo $images->RowAttributes() ?>>
+<?php if ($images->image_name->Visible) { // image_name ?>
+		<td<?php echo $images->image_name->CellAttributes() ?>>
+<span id="el<?php echo $images_delete->RowCnt ?>_images_image_name" class="images_image_name">
+<span<?php echo $images->image_name->ViewAttributes() ?>>
+<?php echo ew_GetFileViewTag($images->image_name, $images->image_name->ListViewValue()) ?>
+</span>
 </span>
 </td>
 <?php } ?>
 	</tr>
 <?php
-	$projects_delete->Recordset->MoveNext();
+	$images_delete->Recordset->MoveNext();
 }
-$projects_delete->Recordset->Close();
+$images_delete->Recordset->Close();
 ?>
 </tbody>
 </table>
@@ -754,14 +774,14 @@ $projects_delete->Recordset->Close();
 </div>
 <div>
 <button class="btn btn-primary ewButton" name="btnAction" id="btnAction" type="submit"><?php echo $Language->Phrase("DeleteBtn") ?></button>
-<button class="btn btn-default ewButton" name="btnCancel" id="btnCancel" type="button" data-href="<?php echo $projects_delete->getReturnUrl() ?>"><?php echo $Language->Phrase("CancelBtn") ?></button>
+<button class="btn btn-default ewButton" name="btnCancel" id="btnCancel" type="button" data-href="<?php echo $images_delete->getReturnUrl() ?>"><?php echo $Language->Phrase("CancelBtn") ?></button>
 </div>
 </form>
 <script type="text/javascript">
-fprojectsdelete.Init();
+fimagesdelete.Init();
 </script>
 <?php
-$projects_delete->ShowPageFooter();
+$images_delete->ShowPageFooter();
 if (EW_DEBUG_ENABLED)
 	echo ew_DebugMsg();
 ?>
@@ -773,5 +793,5 @@ if (EW_DEBUG_ENABLED)
 </script>
 <?php include_once "footer.php" ?>
 <?php
-$projects_delete->Page_Terminate();
+$images_delete->Page_Terminate();
 ?>

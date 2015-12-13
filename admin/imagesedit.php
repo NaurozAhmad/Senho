@@ -5,7 +5,7 @@ ob_start(); // Turn on output buffering
 <?php include_once "ewcfg12.php" ?>
 <?php include_once ((EW_USE_ADODB) ? "adodb5/adodb.inc.php" : "ewmysql12.php") ?>
 <?php include_once "phpfn12.php" ?>
-<?php include_once "projectsinfo.php" ?>
+<?php include_once "imagesinfo.php" ?>
 <?php include_once "userfn12.php" ?>
 <?php
 
@@ -13,9 +13,9 @@ ob_start(); // Turn on output buffering
 // Page class
 //
 
-$projects_edit = NULL; // Initialize page object first
+$images_edit = NULL; // Initialize page object first
 
-class cprojects_edit extends cprojects {
+class cimages_edit extends cimages {
 
 	// Page ID
 	var $PageID = 'edit';
@@ -24,10 +24,10 @@ class cprojects_edit extends cprojects {
 	var $ProjectID = "{D635DDF5-EC98-4B6F-806D-28D8D9C856B8}";
 
 	// Table name
-	var $TableName = 'projects';
+	var $TableName = 'images';
 
 	// Page object name
-	var $PageObjName = 'projects_edit';
+	var $PageObjName = 'images_edit';
 
 	// Page name
 	function PageName() {
@@ -220,10 +220,10 @@ class cprojects_edit extends cprojects {
 		// Parent constuctor
 		parent::__construct();
 
-		// Table object (projects)
-		if (!isset($GLOBALS["projects"]) || get_class($GLOBALS["projects"]) == "cprojects") {
-			$GLOBALS["projects"] = &$this;
-			$GLOBALS["Table"] = &$GLOBALS["projects"];
+		// Table object (images)
+		if (!isset($GLOBALS["images"]) || get_class($GLOBALS["images"]) == "cimages") {
+			$GLOBALS["images"] = &$this;
+			$GLOBALS["Table"] = &$GLOBALS["images"];
 		}
 
 		// Page ID
@@ -232,7 +232,7 @@ class cprojects_edit extends cprojects {
 
 		// Table name (for backward compatibility)
 		if (!defined("EW_TABLE_NAME"))
-			define("EW_TABLE_NAME", 'projects', TRUE);
+			define("EW_TABLE_NAME", 'images', TRUE);
 
 		// Start timer
 		if (!isset($GLOBALS["gTimer"])) $GLOBALS["gTimer"] = new cTimer();
@@ -255,7 +255,7 @@ class cprojects_edit extends cprojects {
 		// Create form object
 		$objForm = new cFormObj();
 		$this->CurrentAction = (@$_GET["a"] <> "") ? $_GET["a"] : @$_POST["a_list"]; // Set up current action
-		$this->id->Visible = !$this->IsAdd() && !$this->IsCopy() && !$this->IsGridAdd();
+		$this->image_id->Visible = !$this->IsAdd() && !$this->IsCopy() && !$this->IsGridAdd();
 
 		// Global Page Loading event (in userfn*.php)
 		Page_Loading();
@@ -301,13 +301,13 @@ class cprojects_edit extends cprojects {
 		Page_Unloaded();
 
 		// Export
-		global $EW_EXPORT, $projects;
+		global $EW_EXPORT, $images;
 		if ($this->CustomExport <> "" && $this->CustomExport == $this->Export && array_key_exists($this->CustomExport, $EW_EXPORT)) {
 				$sContent = ob_get_contents();
 			if ($gsExportFile == "") $gsExportFile = $this->TableVar;
 			$class = $EW_EXPORT[$this->CustomExport];
 			if (class_exists($class)) {
-				$doc = new $class($projects);
+				$doc = new $class($images);
 				$doc->Text = $sContent;
 				if ($this->Export == "email")
 					echo $this->ExportEmail($doc->Text);
@@ -341,8 +341,8 @@ class cprojects_edit extends cprojects {
 		global $objForm, $Language, $gsFormError;
 
 		// Load key from QueryString
-		if (@$_GET["id"] <> "") {
-			$this->id->setQueryStringValue($_GET["id"]);
+		if (@$_GET["image_id"] <> "") {
+			$this->image_id->setQueryStringValue($_GET["image_id"]);
 		}
 
 		// Set up Breadcrumb
@@ -357,8 +357,8 @@ class cprojects_edit extends cprojects {
 		}
 
 		// Check if valid key
-		if ($this->id->CurrentValue == "")
-			$this->Page_Terminate("projectslist.php"); // Invalid key, return to list
+		if ($this->image_id->CurrentValue == "")
+			$this->Page_Terminate("imageslist.php"); // Invalid key, return to list
 
 		// Validate form if post back
 		if (@$_POST["a_edit"] <> "") {
@@ -373,7 +373,7 @@ class cprojects_edit extends cprojects {
 			case "I": // Get a record to display
 				if (!$this->LoadRow()) { // Load record based on key
 					if ($this->getFailureMessage() == "") $this->setFailureMessage($Language->Phrase("NoRecord")); // No record found
-					$this->Page_Terminate("projectslist.php"); // No matching record, return to list
+					$this->Page_Terminate("imageslist.php"); // No matching record, return to list
 				}
 				break;
 			Case "U": // Update
@@ -436,9 +436,9 @@ class cprojects_edit extends cprojects {
 		global $objForm, $Language;
 
 		// Get upload data
-		$this->images->Upload->Index = $objForm->Index;
-		$this->images->Upload->UploadFile();
-		$this->images->CurrentValue = $this->images->Upload->FileName;
+		$this->image_name->Upload->Index = $objForm->Index;
+		$this->image_name->Upload->UploadFile();
+		$this->image_name->CurrentValue = $this->image_name->Upload->FileName;
 	}
 
 	// Load form values
@@ -447,22 +447,13 @@ class cprojects_edit extends cprojects {
 		// Load from form
 		global $objForm;
 		$this->GetUploadFiles(); // Get upload files
-		if (!$this->id->FldIsDetailKey)
-			$this->id->setFormValue($objForm->GetValue("x_id"));
-		if (!$this->title->FldIsDetailKey) {
-			$this->title->setFormValue($objForm->GetValue("x_title"));
+		if (!$this->image_id->FldIsDetailKey)
+			$this->image_id->setFormValue($objForm->GetValue("x_image_id"));
+		if (!$this->p_id->FldIsDetailKey) {
+			$this->p_id->setFormValue($objForm->GetValue("x_p_id"));
 		}
-		if (!$this->intro->FldIsDetailKey) {
-			$this->intro->setFormValue($objForm->GetValue("x_intro"));
-		}
-		if (!$this->full_intro->FldIsDetailKey) {
-			$this->full_intro->setFormValue($objForm->GetValue("x_full_intro"));
-		}
-		if (!$this->details->FldIsDetailKey) {
-			$this->details->setFormValue($objForm->GetValue("x_details"));
-		}
-		if (!$this->livelink->FldIsDetailKey) {
-			$this->livelink->setFormValue($objForm->GetValue("x_livelink"));
+		if (!$this->image_detail->FldIsDetailKey) {
+			$this->image_detail->setFormValue($objForm->GetValue("x_image_detail"));
 		}
 	}
 
@@ -470,12 +461,9 @@ class cprojects_edit extends cprojects {
 	function RestoreFormValues() {
 		global $objForm;
 		$this->LoadRow();
-		$this->id->CurrentValue = $this->id->FormValue;
-		$this->title->CurrentValue = $this->title->FormValue;
-		$this->intro->CurrentValue = $this->intro->FormValue;
-		$this->full_intro->CurrentValue = $this->full_intro->FormValue;
-		$this->details->CurrentValue = $this->details->FormValue;
-		$this->livelink->CurrentValue = $this->livelink->FormValue;
+		$this->image_id->CurrentValue = $this->image_id->FormValue;
+		$this->p_id->CurrentValue = $this->p_id->FormValue;
+		$this->image_detail->CurrentValue = $this->image_detail->FormValue;
 	}
 
 	// Load row based on key values
@@ -507,27 +495,21 @@ class cprojects_edit extends cprojects {
 		// Call Row Selected event
 		$row = &$rs->fields;
 		$this->Row_Selected($row);
-		$this->id->setDbValue($rs->fields('id'));
-		$this->title->setDbValue($rs->fields('title'));
-		$this->images->Upload->DbValue = $rs->fields('images');
-		$this->images->CurrentValue = $this->images->Upload->DbValue;
-		$this->intro->setDbValue($rs->fields('intro'));
-		$this->full_intro->setDbValue($rs->fields('full_intro'));
-		$this->details->setDbValue($rs->fields('details'));
-		$this->livelink->setDbValue($rs->fields('livelink'));
+		$this->image_id->setDbValue($rs->fields('image_id'));
+		$this->p_id->setDbValue($rs->fields('p_id'));
+		$this->image_name->Upload->DbValue = $rs->fields('image_name');
+		$this->image_name->CurrentValue = $this->image_name->Upload->DbValue;
+		$this->image_detail->setDbValue($rs->fields('image_detail'));
 	}
 
 	// Load DbValue from recordset
 	function LoadDbValues(&$rs) {
 		if (!$rs || !is_array($rs) && $rs->EOF) return;
 		$row = is_array($rs) ? $rs : $rs->fields;
-		$this->id->DbValue = $row['id'];
-		$this->title->DbValue = $row['title'];
-		$this->images->Upload->DbValue = $row['images'];
-		$this->intro->DbValue = $row['intro'];
-		$this->full_intro->DbValue = $row['full_intro'];
-		$this->details->DbValue = $row['details'];
-		$this->livelink->DbValue = $row['livelink'];
+		$this->image_id->DbValue = $row['image_id'];
+		$this->p_id->DbValue = $row['p_id'];
+		$this->image_name->Upload->DbValue = $row['image_name'];
+		$this->image_detail->DbValue = $row['image_detail'];
 	}
 
 	// Render row values based on field settings
@@ -540,158 +522,132 @@ class cprojects_edit extends cprojects {
 		$this->Row_Rendering();
 
 		// Common render codes for all row types
-		// id
-		// title
-		// images
-		// intro
-		// full_intro
-		// details
-		// livelink
+		// image_id
+		// p_id
+		// image_name
+		// image_detail
 
 		if ($this->RowType == EW_ROWTYPE_VIEW) { // View row
 
-		// id
-		$this->id->ViewValue = $this->id->CurrentValue;
-		$this->id->ViewCustomAttributes = "";
+		// image_id
+		$this->image_id->ViewValue = $this->image_id->CurrentValue;
+		$this->image_id->ViewCustomAttributes = "";
 
-		// title
-		$this->title->ViewValue = $this->title->CurrentValue;
-		$this->title->ViewCustomAttributes = "";
-
-		// images
-		$this->images->UploadPath = "/uploads";
-		if (!ew_Empty($this->images->Upload->DbValue)) {
-			$this->images->ViewValue = $this->images->Upload->DbValue;
+		// p_id
+		if (strval($this->p_id->CurrentValue) <> "") {
+			$sFilterWrk = "`id`" . ew_SearchString("=", $this->p_id->CurrentValue, EW_DATATYPE_NUMBER, "");
+		$sSqlWrk = "SELECT `id`, `title` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `projects`";
+		$sWhereWrk = "";
+		ew_AddFilter($sWhereWrk, $sFilterWrk);
+		$this->Lookup_Selecting($this->p_id, $sWhereWrk); // Call Lookup selecting
+		if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			if ($rswrk && !$rswrk->EOF) { // Lookup values found
+				$arwrk = array();
+				$arwrk[1] = $rswrk->fields('DispFld');
+				$this->p_id->ViewValue = $this->p_id->DisplayValue($arwrk);
+				$rswrk->Close();
+			} else {
+				$this->p_id->ViewValue = $this->p_id->CurrentValue;
+			}
 		} else {
-			$this->images->ViewValue = "";
+			$this->p_id->ViewValue = NULL;
 		}
-		$this->images->ViewCustomAttributes = "";
+		$this->p_id->ViewCustomAttributes = "";
 
-		// intro
-		$this->intro->ViewValue = $this->intro->CurrentValue;
-		$this->intro->ViewCustomAttributes = "";
+		// image_name
+		$this->image_name->UploadPath = "/projectimages";
+		if (!ew_Empty($this->image_name->Upload->DbValue)) {
+			$this->image_name->ViewValue = $this->image_name->Upload->DbValue;
+		} else {
+			$this->image_name->ViewValue = "";
+		}
+		$this->image_name->ViewCustomAttributes = "";
 
-		// full_intro
-		$this->full_intro->ViewValue = $this->full_intro->CurrentValue;
-		$this->full_intro->ViewCustomAttributes = "";
+		// image_detail
+		$this->image_detail->ViewValue = $this->image_detail->CurrentValue;
+		$this->image_detail->ViewCustomAttributes = "";
 
-		// details
-		$this->details->ViewValue = $this->details->CurrentValue;
-		$this->details->ViewCustomAttributes = "";
+			// image_id
+			$this->image_id->LinkCustomAttributes = "";
+			$this->image_id->HrefValue = "";
+			$this->image_id->TooltipValue = "";
 
-		// livelink
-		$this->livelink->ViewValue = $this->livelink->CurrentValue;
-		$this->livelink->ViewCustomAttributes = "";
+			// p_id
+			$this->p_id->LinkCustomAttributes = "";
+			$this->p_id->HrefValue = "";
+			$this->p_id->TooltipValue = "";
 
-			// id
-			$this->id->LinkCustomAttributes = "";
-			$this->id->HrefValue = "";
-			$this->id->TooltipValue = "";
+			// image_name
+			$this->image_name->LinkCustomAttributes = "";
+			$this->image_name->HrefValue = "";
+			$this->image_name->HrefValue2 = $this->image_name->UploadPath . $this->image_name->Upload->DbValue;
+			$this->image_name->TooltipValue = "";
 
-			// title
-			$this->title->LinkCustomAttributes = "";
-			$this->title->HrefValue = "";
-			$this->title->TooltipValue = "";
-
-			// images
-			$this->images->LinkCustomAttributes = "";
-			$this->images->HrefValue = "";
-			$this->images->HrefValue2 = $this->images->UploadPath . $this->images->Upload->DbValue;
-			$this->images->TooltipValue = "";
-
-			// intro
-			$this->intro->LinkCustomAttributes = "";
-			$this->intro->HrefValue = "";
-			$this->intro->TooltipValue = "";
-
-			// full_intro
-			$this->full_intro->LinkCustomAttributes = "";
-			$this->full_intro->HrefValue = "";
-			$this->full_intro->TooltipValue = "";
-
-			// details
-			$this->details->LinkCustomAttributes = "";
-			$this->details->HrefValue = "";
-			$this->details->TooltipValue = "";
-
-			// livelink
-			$this->livelink->LinkCustomAttributes = "";
-			$this->livelink->HrefValue = "";
-			$this->livelink->TooltipValue = "";
+			// image_detail
+			$this->image_detail->LinkCustomAttributes = "";
+			$this->image_detail->HrefValue = "";
+			$this->image_detail->TooltipValue = "";
 		} elseif ($this->RowType == EW_ROWTYPE_EDIT) { // Edit row
 
-			// id
-			$this->id->EditAttrs["class"] = "form-control";
-			$this->id->EditCustomAttributes = "";
-			$this->id->EditValue = $this->id->CurrentValue;
-			$this->id->ViewCustomAttributes = "";
+			// image_id
+			$this->image_id->EditAttrs["class"] = "form-control";
+			$this->image_id->EditCustomAttributes = "";
+			$this->image_id->EditValue = $this->image_id->CurrentValue;
+			$this->image_id->ViewCustomAttributes = "";
 
-			// title
-			$this->title->EditAttrs["class"] = "form-control";
-			$this->title->EditCustomAttributes = "";
-			$this->title->EditValue = ew_HtmlEncode($this->title->CurrentValue);
-			$this->title->PlaceHolder = ew_RemoveHtml($this->title->FldCaption());
-
-			// images
-			$this->images->EditAttrs["class"] = "form-control";
-			$this->images->EditCustomAttributes = "";
-			$this->images->UploadPath = "/uploads";
-			if (!ew_Empty($this->images->Upload->DbValue)) {
-				$this->images->EditValue = $this->images->Upload->DbValue;
+			// p_id
+			$this->p_id->EditAttrs["class"] = "form-control";
+			$this->p_id->EditCustomAttributes = "";
+			if (trim(strval($this->p_id->CurrentValue)) == "") {
+				$sFilterWrk = "0=1";
 			} else {
-				$this->images->EditValue = "";
+				$sFilterWrk = "`id`" . ew_SearchString("=", $this->p_id->CurrentValue, EW_DATATYPE_NUMBER, "");
 			}
-			if (!ew_Empty($this->images->CurrentValue))
-				$this->images->Upload->FileName = $this->images->CurrentValue;
-			if ($this->CurrentAction == "I" && !$this->EventCancelled) ew_RenderUploadField($this->images);
+			$sSqlWrk = "SELECT `id`, `title` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld`, '' AS `SelectFilterFld`, '' AS `SelectFilterFld2`, '' AS `SelectFilterFld3`, '' AS `SelectFilterFld4` FROM `projects`";
+			$sWhereWrk = "";
+			ew_AddFilter($sWhereWrk, $sFilterWrk);
+			$this->Lookup_Selecting($this->p_id, $sWhereWrk); // Call Lookup selecting
+			if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+			$rswrk = Conn()->Execute($sSqlWrk);
+			$arwrk = ($rswrk) ? $rswrk->GetRows() : array();
+			if ($rswrk) $rswrk->Close();
+			array_unshift($arwrk, array("", $Language->Phrase("PleaseSelect"), "", "", "", "", "", "", ""));
+			$this->p_id->EditValue = $arwrk;
 
-			// intro
-			$this->intro->EditAttrs["class"] = "form-control";
-			$this->intro->EditCustomAttributes = "";
-			$this->intro->EditValue = ew_HtmlEncode($this->intro->CurrentValue);
-			$this->intro->PlaceHolder = ew_RemoveHtml($this->intro->FldCaption());
+			// image_name
+			$this->image_name->EditAttrs["class"] = "form-control";
+			$this->image_name->EditCustomAttributes = "";
+			$this->image_name->UploadPath = "/projectimages";
+			if (!ew_Empty($this->image_name->Upload->DbValue)) {
+				$this->image_name->EditValue = $this->image_name->Upload->DbValue;
+			} else {
+				$this->image_name->EditValue = "";
+			}
+			if (!ew_Empty($this->image_name->CurrentValue))
+				$this->image_name->Upload->FileName = $this->image_name->CurrentValue;
+			if ($this->CurrentAction == "I" && !$this->EventCancelled) ew_RenderUploadField($this->image_name);
 
-			// full_intro
-			$this->full_intro->EditAttrs["class"] = "form-control";
-			$this->full_intro->EditCustomAttributes = "";
-			$this->full_intro->EditValue = ew_HtmlEncode($this->full_intro->CurrentValue);
-			$this->full_intro->PlaceHolder = ew_RemoveHtml($this->full_intro->FldCaption());
-
-			// details
-			$this->details->EditAttrs["class"] = "form-control";
-			$this->details->EditCustomAttributes = "";
-			$this->details->EditValue = ew_HtmlEncode($this->details->CurrentValue);
-			$this->details->PlaceHolder = ew_RemoveHtml($this->details->FldCaption());
-
-			// livelink
-			$this->livelink->EditAttrs["class"] = "form-control";
-			$this->livelink->EditCustomAttributes = "";
-			$this->livelink->EditValue = ew_HtmlEncode($this->livelink->CurrentValue);
-			$this->livelink->PlaceHolder = ew_RemoveHtml($this->livelink->FldCaption());
+			// image_detail
+			$this->image_detail->EditAttrs["class"] = "form-control";
+			$this->image_detail->EditCustomAttributes = "";
+			$this->image_detail->EditValue = ew_HtmlEncode($this->image_detail->CurrentValue);
+			$this->image_detail->PlaceHolder = ew_RemoveHtml($this->image_detail->FldCaption());
 
 			// Edit refer script
-			// id
+			// image_id
 
-			$this->id->HrefValue = "";
+			$this->image_id->HrefValue = "";
 
-			// title
-			$this->title->HrefValue = "";
+			// p_id
+			$this->p_id->HrefValue = "";
 
-			// images
-			$this->images->HrefValue = "";
-			$this->images->HrefValue2 = $this->images->UploadPath . $this->images->Upload->DbValue;
+			// image_name
+			$this->image_name->HrefValue = "";
+			$this->image_name->HrefValue2 = $this->image_name->UploadPath . $this->image_name->Upload->DbValue;
 
-			// intro
-			$this->intro->HrefValue = "";
-
-			// full_intro
-			$this->full_intro->HrefValue = "";
-
-			// details
-			$this->details->HrefValue = "";
-
-			// livelink
-			$this->livelink->HrefValue = "";
+			// image_detail
+			$this->image_detail->HrefValue = "";
 		}
 		if ($this->RowType == EW_ROWTYPE_ADD ||
 			$this->RowType == EW_ROWTYPE_EDIT ||
@@ -714,20 +670,14 @@ class cprojects_edit extends cprojects {
 		// Check if validation required
 		if (!EW_SERVER_VALIDATE)
 			return ($gsFormError == "");
-		if (!$this->title->FldIsDetailKey && !is_null($this->title->FormValue) && $this->title->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->title->FldCaption(), $this->title->ReqErrMsg));
+		if (!$this->p_id->FldIsDetailKey && !is_null($this->p_id->FormValue) && $this->p_id->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->p_id->FldCaption(), $this->p_id->ReqErrMsg));
 		}
-		if ($this->images->Upload->FileName == "" && !$this->images->Upload->KeepFile) {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->images->FldCaption(), $this->images->ReqErrMsg));
+		if ($this->image_name->Upload->FileName == "" && !$this->image_name->Upload->KeepFile) {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->image_name->FldCaption(), $this->image_name->ReqErrMsg));
 		}
-		if (!$this->intro->FldIsDetailKey && !is_null($this->intro->FormValue) && $this->intro->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->intro->FldCaption(), $this->intro->ReqErrMsg));
-		}
-		if (!$this->full_intro->FldIsDetailKey && !is_null($this->full_intro->FormValue) && $this->full_intro->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->full_intro->FldCaption(), $this->full_intro->ReqErrMsg));
-		}
-		if (!$this->details->FldIsDetailKey && !is_null($this->details->FormValue) && $this->details->FormValue == "") {
-			ew_AddMessage($gsFormError, str_replace("%s", $this->details->FldCaption(), $this->details->ReqErrMsg));
+		if (!$this->image_detail->FldIsDetailKey && !is_null($this->image_detail->FormValue) && $this->image_detail->FormValue == "") {
+			ew_AddMessage($gsFormError, str_replace("%s", $this->image_detail->FldCaption(), $this->image_detail->ReqErrMsg));
 		}
 
 		// Return validate result
@@ -761,38 +711,29 @@ class cprojects_edit extends cprojects {
 			// Save old values
 			$rsold = &$rs->fields;
 			$this->LoadDbValues($rsold);
-			$this->images->OldUploadPath = "/uploads";
-			$this->images->UploadPath = $this->images->OldUploadPath;
+			$this->image_name->OldUploadPath = "/projectimages";
+			$this->image_name->UploadPath = $this->image_name->OldUploadPath;
 			$rsnew = array();
 
-			// title
-			$this->title->SetDbValueDef($rsnew, $this->title->CurrentValue, "", $this->title->ReadOnly);
+			// p_id
+			$this->p_id->SetDbValueDef($rsnew, $this->p_id->CurrentValue, 0, $this->p_id->ReadOnly);
 
-			// images
-			if (!($this->images->ReadOnly) && !$this->images->Upload->KeepFile) {
-				$this->images->Upload->DbValue = $rsold['images']; // Get original value
-				if ($this->images->Upload->FileName == "") {
-					$rsnew['images'] = NULL;
+			// image_name
+			if (!($this->image_name->ReadOnly) && !$this->image_name->Upload->KeepFile) {
+				$this->image_name->Upload->DbValue = $rsold['image_name']; // Get original value
+				if ($this->image_name->Upload->FileName == "") {
+					$rsnew['image_name'] = NULL;
 				} else {
-					$rsnew['images'] = $this->images->Upload->FileName;
+					$rsnew['image_name'] = $this->image_name->Upload->FileName;
 				}
 			}
 
-			// intro
-			$this->intro->SetDbValueDef($rsnew, $this->intro->CurrentValue, "", $this->intro->ReadOnly);
-
-			// full_intro
-			$this->full_intro->SetDbValueDef($rsnew, $this->full_intro->CurrentValue, "", $this->full_intro->ReadOnly);
-
-			// details
-			$this->details->SetDbValueDef($rsnew, $this->details->CurrentValue, "", $this->details->ReadOnly);
-
-			// livelink
-			$this->livelink->SetDbValueDef($rsnew, $this->livelink->CurrentValue, NULL, $this->livelink->ReadOnly);
-			if (!$this->images->Upload->KeepFile) {
-				$this->images->UploadPath = "/uploads";
-				if (!ew_Empty($this->images->Upload->Value)) {
-					$rsnew['images'] = ew_UploadFileNameEx(ew_UploadPathEx(TRUE, $this->images->UploadPath), $rsnew['images']); // Get new file name
+			// image_detail
+			$this->image_detail->SetDbValueDef($rsnew, $this->image_detail->CurrentValue, "", $this->image_detail->ReadOnly);
+			if (!$this->image_name->Upload->KeepFile) {
+				$this->image_name->UploadPath = "/projectimages";
+				if (!ew_Empty($this->image_name->Upload->Value)) {
+					$rsnew['image_name'] = ew_UploadFileNameEx(ew_UploadPathEx(TRUE, $this->image_name->UploadPath), $rsnew['image_name']); // Get new file name
 				}
 			}
 
@@ -806,9 +747,9 @@ class cprojects_edit extends cprojects {
 					$EditRow = TRUE; // No field to update
 				$conn->raiseErrorFn = '';
 				if ($EditRow) {
-					if (!$this->images->Upload->KeepFile) {
-						if (!ew_Empty($this->images->Upload->Value)) {
-							$this->images->Upload->SaveToFile($this->images->UploadPath, $rsnew['images'], TRUE);
+					if (!$this->image_name->Upload->KeepFile) {
+						if (!ew_Empty($this->image_name->Upload->Value)) {
+							$this->image_name->Upload->SaveToFile($this->image_name->UploadPath, $rsnew['image_name'], TRUE);
 						}
 					}
 				}
@@ -831,8 +772,8 @@ class cprojects_edit extends cprojects {
 			$this->Row_Updated($rsold, $rsnew);
 		$rs->Close();
 
-		// images
-		ew_CleanUploadTempPath($this->images, $this->images->Upload->Index);
+		// image_name
+		ew_CleanUploadTempPath($this->image_name, $this->image_name->Upload->Index);
 		return $EditRow;
 	}
 
@@ -841,7 +782,7 @@ class cprojects_edit extends cprojects {
 		global $Breadcrumb, $Language;
 		$Breadcrumb = new cBreadcrumb();
 		$url = substr(ew_CurrentUrl(), strrpos(ew_CurrentUrl(), "/")+1);
-		$Breadcrumb->Add("list", $this->TableVar, "projectslist.php", "", $this->TableVar, TRUE);
+		$Breadcrumb->Add("list", $this->TableVar, "imageslist.php", "", $this->TableVar, TRUE);
 		$PageId = "edit";
 		$Breadcrumb->Add("edit", $PageId, $url);
 	}
@@ -918,29 +859,29 @@ class cprojects_edit extends cprojects {
 <?php
 
 // Create page object
-if (!isset($projects_edit)) $projects_edit = new cprojects_edit();
+if (!isset($images_edit)) $images_edit = new cimages_edit();
 
 // Page init
-$projects_edit->Page_Init();
+$images_edit->Page_Init();
 
 // Page main
-$projects_edit->Page_Main();
+$images_edit->Page_Main();
 
 // Global Page Rendering event (in userfn*.php)
 Page_Rendering();
 
 // Page Rendering event
-$projects_edit->Page_Render();
+$images_edit->Page_Render();
 ?>
 <?php include_once "header.php" ?>
 <script type="text/javascript">
 
 // Form object
 var CurrentPageID = EW_PAGE_ID = "edit";
-var CurrentForm = fprojectsedit = new ew_Form("fprojectsedit", "edit");
+var CurrentForm = fimagesedit = new ew_Form("fimagesedit", "edit");
 
 // Validate form
-fprojectsedit.Validate = function() {
+fimagesedit.Validate = function() {
 	if (!this.ValidateRequired)
 		return true; // Ignore validation
 	var $ = jQuery, fobj = this.GetForm(), $fobj = $(fobj);
@@ -954,22 +895,16 @@ fprojectsedit.Validate = function() {
 	for (var i = startcnt; i <= rowcnt; i++) {
 		var infix = ($k[0]) ? String(i) : "";
 		$fobj.data("rowindex", infix);
-			elm = this.GetElements("x" + infix + "_title");
+			elm = this.GetElements("x" + infix + "_p_id");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $projects->title->FldCaption(), $projects->title->ReqErrMsg)) ?>");
-			felm = this.GetElements("x" + infix + "_images");
-			elm = this.GetElements("fn_x" + infix + "_images");
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $images->p_id->FldCaption(), $images->p_id->ReqErrMsg)) ?>");
+			felm = this.GetElements("x" + infix + "_image_name");
+			elm = this.GetElements("fn_x" + infix + "_image_name");
 			if (felm && elm && !ew_HasValue(elm))
-				return this.OnError(felm, "<?php echo ew_JsEncode2(str_replace("%s", $projects->images->FldCaption(), $projects->images->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_intro");
+				return this.OnError(felm, "<?php echo ew_JsEncode2(str_replace("%s", $images->image_name->FldCaption(), $images->image_name->ReqErrMsg)) ?>");
+			elm = this.GetElements("x" + infix + "_image_detail");
 			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $projects->intro->FldCaption(), $projects->intro->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_full_intro");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $projects->full_intro->FldCaption(), $projects->full_intro->ReqErrMsg)) ?>");
-			elm = this.GetElements("x" + infix + "_details");
-			if (elm && !ew_IsHidden(elm) && !ew_HasValue(elm))
-				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $projects->details->FldCaption(), $projects->details->ReqErrMsg)) ?>");
+				return this.OnError(elm, "<?php echo ew_JsEncode2(str_replace("%s", $images->image_detail->FldCaption(), $images->image_detail->ReqErrMsg)) ?>");
 
 			// Fire Form_CustomValidate event
 			if (!this.Form_CustomValidate(fobj))
@@ -988,7 +923,7 @@ fprojectsedit.Validate = function() {
 }
 
 // Form_CustomValidate event
-fprojectsedit.Form_CustomValidate = 
+fimagesedit.Form_CustomValidate = 
  function(fobj) { // DO NOT CHANGE THIS LINE!
 
  	// Your custom validation code here, return false if invalid. 
@@ -997,14 +932,15 @@ fprojectsedit.Form_CustomValidate =
 
 // Use JavaScript validation or not
 <?php if (EW_CLIENT_VALIDATE) { ?>
-fprojectsedit.ValidateRequired = true;
+fimagesedit.ValidateRequired = true;
 <?php } else { ?>
-fprojectsedit.ValidateRequired = false; 
+fimagesedit.ValidateRequired = false; 
 <?php } ?>
 
 // Dynamic selection lists
-// Form object for search
+fimagesedit.Lists["x_p_id"] = {"LinkField":"x_id","Ajax":true,"AutoFill":false,"DisplayFields":["x_title","","",""],"ParentFields":[],"ChildFields":[],"FilterFields":[],"Options":[],"Template":""};
 
+// Form object for search
 </script>
 <script type="text/javascript">
 
@@ -1015,125 +951,121 @@ fprojectsedit.ValidateRequired = false;
 <?php echo $Language->SelectionForm(); ?>
 <div class="clearfix"></div>
 </div>
-<?php $projects_edit->ShowPageHeader(); ?>
+<?php $images_edit->ShowPageHeader(); ?>
 <?php
-$projects_edit->ShowMessage();
+$images_edit->ShowMessage();
 ?>
-<form name="fprojectsedit" id="fprojectsedit" class="<?php echo $projects_edit->FormClassName ?>" action="<?php echo ew_CurrentPage() ?>" method="post">
-<?php if ($projects_edit->CheckToken) { ?>
-<input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $projects_edit->Token ?>">
+<form name="fimagesedit" id="fimagesedit" class="<?php echo $images_edit->FormClassName ?>" action="<?php echo ew_CurrentPage() ?>" method="post">
+<?php if ($images_edit->CheckToken) { ?>
+<input type="hidden" name="<?php echo EW_TOKEN_NAME ?>" value="<?php echo $images_edit->Token ?>">
 <?php } ?>
-<input type="hidden" name="t" value="projects">
+<input type="hidden" name="t" value="images">
 <input type="hidden" name="a_edit" id="a_edit" value="U">
 <div>
-<?php if ($projects->id->Visible) { // id ?>
-	<div id="r_id" class="form-group">
-		<label id="elh_projects_id" class="col-sm-2 control-label ewLabel"><?php echo $projects->id->FldCaption() ?></label>
-		<div class="col-sm-10"><div<?php echo $projects->id->CellAttributes() ?>>
-<span id="el_projects_id">
-<span<?php echo $projects->id->ViewAttributes() ?>>
-<p class="form-control-static"><?php echo $projects->id->EditValue ?></p></span>
+<?php if ($images->image_id->Visible) { // image_id ?>
+	<div id="r_image_id" class="form-group">
+		<label id="elh_images_image_id" class="col-sm-2 control-label ewLabel"><?php echo $images->image_id->FldCaption() ?></label>
+		<div class="col-sm-10"><div<?php echo $images->image_id->CellAttributes() ?>>
+<span id="el_images_image_id">
+<span<?php echo $images->image_id->ViewAttributes() ?>>
+<p class="form-control-static"><?php echo $images->image_id->EditValue ?></p></span>
 </span>
-<input type="hidden" data-table="projects" data-field="x_id" name="x_id" id="x_id" value="<?php echo ew_HtmlEncode($projects->id->CurrentValue) ?>">
-<?php echo $projects->id->CustomMsg ?></div></div>
+<input type="hidden" data-table="images" data-field="x_image_id" name="x_image_id" id="x_image_id" value="<?php echo ew_HtmlEncode($images->image_id->CurrentValue) ?>">
+<?php echo $images->image_id->CustomMsg ?></div></div>
 	</div>
 <?php } ?>
-<?php if ($projects->title->Visible) { // title ?>
-	<div id="r_title" class="form-group">
-		<label id="elh_projects_title" for="x_title" class="col-sm-2 control-label ewLabel"><?php echo $projects->title->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
-		<div class="col-sm-10"><div<?php echo $projects->title->CellAttributes() ?>>
-<span id="el_projects_title">
-<textarea data-table="projects" data-field="x_title" name="x_title" id="x_title" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($projects->title->getPlaceHolder()) ?>"<?php echo $projects->title->EditAttributes() ?>><?php echo $projects->title->EditValue ?></textarea>
+<?php if ($images->p_id->Visible) { // p_id ?>
+	<div id="r_p_id" class="form-group">
+		<label id="elh_images_p_id" for="x_p_id" class="col-sm-2 control-label ewLabel"><?php echo $images->p_id->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<div class="col-sm-10"><div<?php echo $images->p_id->CellAttributes() ?>>
+<span id="el_images_p_id">
+<select data-table="images" data-field="x_p_id" data-value-separator="<?php echo ew_HtmlEncode(is_array($images->p_id->DisplayValueSeparator) ? json_encode($images->p_id->DisplayValueSeparator) : $images->p_id->DisplayValueSeparator) ?>" id="x_p_id" name="x_p_id"<?php echo $images->p_id->EditAttributes() ?>>
+<?php
+if (is_array($images->p_id->EditValue)) {
+	$arwrk = $images->p_id->EditValue;
+	$rowswrk = count($arwrk);
+	$emptywrk = TRUE;
+	for ($rowcntwrk = 0; $rowcntwrk < $rowswrk; $rowcntwrk++) {
+		$selwrk = ew_SameStr($images->p_id->CurrentValue, $arwrk[$rowcntwrk][0]) ? " selected" : "";
+		if ($selwrk <> "") $emptywrk = FALSE;		
+		if ($selwrk <> "" || $arwrk[$rowcntwrk][0] == "") {
+?>
+<option value="<?php echo ew_HtmlEncode($arwrk[$rowcntwrk][0]) ?>"<?php echo $selwrk ?>>
+<?php echo $images->p_id->DisplayValue($arwrk[$rowcntwrk]) ?>
+</option>
+<?php
+		}
+	}
+}
+?>
+</select>
+<?php
+$sSqlWrk = "SELECT `id`, `title` AS `DispFld`, '' AS `Disp2Fld`, '' AS `Disp3Fld`, '' AS `Disp4Fld` FROM `projects`";
+$sWhereWrk = "";
+$images->p_id->LookupFilters = array("s" => $sSqlWrk, "d" => "");
+$images->p_id->LookupFilters += array("f0" => "`id` = {filter_value}", "t0" => "3", "fn0" => "");
+$sSqlWrk = "";
+$images->Lookup_Selecting($images->p_id, $sWhereWrk); // Call Lookup selecting
+if ($sWhereWrk <> "") $sSqlWrk .= " WHERE " . $sWhereWrk;
+if ($sSqlWrk <> "") $images->p_id->LookupFilters["s"] .= $sSqlWrk;
+?>
+<input type="hidden" name="s_x_p_id" id="s_x_p_id" value="<?php echo $images->p_id->LookupFilterQuery() ?>">
 </span>
-<?php echo $projects->title->CustomMsg ?></div></div>
+<?php echo $images->p_id->CustomMsg ?></div></div>
 	</div>
 <?php } ?>
-<?php if ($projects->images->Visible) { // images ?>
-	<div id="r_images" class="form-group">
-		<label id="elh_projects_images" class="col-sm-2 control-label ewLabel"><?php echo $projects->images->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
-		<div class="col-sm-10"><div<?php echo $projects->images->CellAttributes() ?>>
-<span id="el_projects_images">
-<div id="fd_x_images">
-<span title="<?php echo $projects->images->FldTitle() ? $projects->images->FldTitle() : $Language->Phrase("ChooseFile") ?>" class="btn btn-default btn-sm fileinput-button ewTooltip<?php if ($projects->images->ReadOnly || $projects->images->Disabled) echo " hide"; ?>">
+<?php if ($images->image_name->Visible) { // image_name ?>
+	<div id="r_image_name" class="form-group">
+		<label id="elh_images_image_name" class="col-sm-2 control-label ewLabel"><?php echo $images->image_name->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<div class="col-sm-10"><div<?php echo $images->image_name->CellAttributes() ?>>
+<span id="el_images_image_name">
+<div id="fd_x_image_name">
+<span title="<?php echo $images->image_name->FldTitle() ? $images->image_name->FldTitle() : $Language->Phrase("ChooseFile") ?>" class="btn btn-default btn-sm fileinput-button ewTooltip<?php if ($images->image_name->ReadOnly || $images->image_name->Disabled) echo " hide"; ?>">
 	<span><?php echo $Language->Phrase("ChooseFileBtn") ?></span>
-	<input type="file" title=" " data-table="projects" data-field="x_images" name="x_images" id="x_images"<?php echo $projects->images->EditAttributes() ?>>
+	<input type="file" title=" " data-table="images" data-field="x_image_name" name="x_image_name" id="x_image_name"<?php echo $images->image_name->EditAttributes() ?>>
 </span>
-<input type="hidden" name="fn_x_images" id= "fn_x_images" value="<?php echo $projects->images->Upload->FileName ?>">
-<?php if (@$_POST["fa_x_images"] == "0") { ?>
-<input type="hidden" name="fa_x_images" id= "fa_x_images" value="0">
+<input type="hidden" name="fn_x_image_name" id= "fn_x_image_name" value="<?php echo $images->image_name->Upload->FileName ?>">
+<?php if (@$_POST["fa_x_image_name"] == "0") { ?>
+<input type="hidden" name="fa_x_image_name" id= "fa_x_image_name" value="0">
 <?php } else { ?>
-<input type="hidden" name="fa_x_images" id= "fa_x_images" value="1">
+<input type="hidden" name="fa_x_image_name" id= "fa_x_image_name" value="1">
 <?php } ?>
-<input type="hidden" name="fs_x_images" id= "fs_x_images" value="5000">
-<input type="hidden" name="fx_x_images" id= "fx_x_images" value="<?php echo $projects->images->UploadAllowedFileExt ?>">
-<input type="hidden" name="fm_x_images" id= "fm_x_images" value="<?php echo $projects->images->UploadMaxFileSize ?>">
+<input type="hidden" name="fs_x_image_name" id= "fs_x_image_name" value="200">
+<input type="hidden" name="fx_x_image_name" id= "fx_x_image_name" value="<?php echo $images->image_name->UploadAllowedFileExt ?>">
+<input type="hidden" name="fm_x_image_name" id= "fm_x_image_name" value="<?php echo $images->image_name->UploadMaxFileSize ?>">
 </div>
-<table id="ft_x_images" class="table table-condensed pull-left ewUploadTable"><tbody class="files"></tbody></table>
+<table id="ft_x_image_name" class="table table-condensed pull-left ewUploadTable"><tbody class="files"></tbody></table>
 </span>
-<?php echo $projects->images->CustomMsg ?></div></div>
+<?php echo $images->image_name->CustomMsg ?></div></div>
 	</div>
 <?php } ?>
-<?php if ($projects->intro->Visible) { // intro ?>
-	<div id="r_intro" class="form-group">
-		<label id="elh_projects_intro" for="x_intro" class="col-sm-2 control-label ewLabel"><?php echo $projects->intro->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
-		<div class="col-sm-10"><div<?php echo $projects->intro->CellAttributes() ?>>
-<span id="el_projects_intro">
-<textarea data-table="projects" data-field="x_intro" name="x_intro" id="x_intro" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($projects->intro->getPlaceHolder()) ?>"<?php echo $projects->intro->EditAttributes() ?>><?php echo $projects->intro->EditValue ?></textarea>
-</span>
-<?php echo $projects->intro->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
-<?php if ($projects->full_intro->Visible) { // full_intro ?>
-	<div id="r_full_intro" class="form-group">
-		<label id="elh_projects_full_intro" class="col-sm-2 control-label ewLabel"><?php echo $projects->full_intro->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
-		<div class="col-sm-10"><div<?php echo $projects->full_intro->CellAttributes() ?>>
-<span id="el_projects_full_intro">
-<?php ew_AppendClass($projects->full_intro->EditAttrs["class"], "editor"); ?>
-<textarea data-table="projects" data-field="x_full_intro" name="x_full_intro" id="x_full_intro" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($projects->full_intro->getPlaceHolder()) ?>"<?php echo $projects->full_intro->EditAttributes() ?>><?php echo $projects->full_intro->EditValue ?></textarea>
+<?php if ($images->image_detail->Visible) { // image_detail ?>
+	<div id="r_image_detail" class="form-group">
+		<label id="elh_images_image_detail" class="col-sm-2 control-label ewLabel"><?php echo $images->image_detail->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
+		<div class="col-sm-10"><div<?php echo $images->image_detail->CellAttributes() ?>>
+<span id="el_images_image_detail">
+<?php ew_AppendClass($images->image_detail->EditAttrs["class"], "editor"); ?>
+<textarea data-table="images" data-field="x_image_detail" name="x_image_detail" id="x_image_detail" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($images->image_detail->getPlaceHolder()) ?>"<?php echo $images->image_detail->EditAttributes() ?>><?php echo $images->image_detail->EditValue ?></textarea>
 <script type="text/javascript">
-ew_CreateEditor("fprojectsedit", "x_full_intro", 35, 4, <?php echo ($projects->full_intro->ReadOnly || FALSE) ? "true" : "false" ?>);
+ew_CreateEditor("fimagesedit", "x_image_detail", 35, 4, <?php echo ($images->image_detail->ReadOnly || FALSE) ? "true" : "false" ?>);
 </script>
 </span>
-<?php echo $projects->full_intro->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
-<?php if ($projects->details->Visible) { // details ?>
-	<div id="r_details" class="form-group">
-		<label id="elh_projects_details" class="col-sm-2 control-label ewLabel"><?php echo $projects->details->FldCaption() ?><?php echo $Language->Phrase("FieldRequiredIndicator") ?></label>
-		<div class="col-sm-10"><div<?php echo $projects->details->CellAttributes() ?>>
-<span id="el_projects_details">
-<?php ew_AppendClass($projects->details->EditAttrs["class"], "editor"); ?>
-<textarea data-table="projects" data-field="x_details" name="x_details" id="x_details" cols="35" rows="4" placeholder="<?php echo ew_HtmlEncode($projects->details->getPlaceHolder()) ?>"<?php echo $projects->details->EditAttributes() ?>><?php echo $projects->details->EditValue ?></textarea>
-<script type="text/javascript">
-ew_CreateEditor("fprojectsedit", "x_details", 35, 4, <?php echo ($projects->details->ReadOnly || FALSE) ? "true" : "false" ?>);
-</script>
-</span>
-<?php echo $projects->details->CustomMsg ?></div></div>
-	</div>
-<?php } ?>
-<?php if ($projects->livelink->Visible) { // livelink ?>
-	<div id="r_livelink" class="form-group">
-		<label id="elh_projects_livelink" for="x_livelink" class="col-sm-2 control-label ewLabel"><?php echo $projects->livelink->FldCaption() ?></label>
-		<div class="col-sm-10"><div<?php echo $projects->livelink->CellAttributes() ?>>
-<span id="el_projects_livelink">
-<input type="text" data-table="projects" data-field="x_livelink" name="x_livelink" id="x_livelink" size="40" placeholder="<?php echo ew_HtmlEncode($projects->livelink->getPlaceHolder()) ?>" value="<?php echo $projects->livelink->EditValue ?>"<?php echo $projects->livelink->EditAttributes() ?>>
-</span>
-<?php echo $projects->livelink->CustomMsg ?></div></div>
+<?php echo $images->image_detail->CustomMsg ?></div></div>
 	</div>
 <?php } ?>
 </div>
 <div class="form-group">
 	<div class="col-sm-offset-2 col-sm-10">
 <button class="btn btn-primary ewButton" name="btnAction" id="btnAction" type="submit"><?php echo $Language->Phrase("SaveBtn") ?></button>
-<button class="btn btn-default ewButton" name="btnCancel" id="btnCancel" type="button" data-href="<?php echo $projects_edit->getReturnUrl() ?>"><?php echo $Language->Phrase("CancelBtn") ?></button>
+<button class="btn btn-default ewButton" name="btnCancel" id="btnCancel" type="button" data-href="<?php echo $images_edit->getReturnUrl() ?>"><?php echo $Language->Phrase("CancelBtn") ?></button>
 	</div>
 </div>
 </form>
 <script type="text/javascript">
-fprojectsedit.Init();
+fimagesedit.Init();
 </script>
 <?php
-$projects_edit->ShowPageFooter();
+$images_edit->ShowPageFooter();
 if (EW_DEBUG_ENABLED)
 	echo ew_DebugMsg();
 ?>
@@ -1145,5 +1077,5 @@ if (EW_DEBUG_ENABLED)
 </script>
 <?php include_once "footer.php" ?>
 <?php
-$projects_edit->Page_Terminate();
+$images_edit->Page_Terminate();
 ?>

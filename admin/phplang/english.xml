@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ew-language date="2015/12/12" version="12.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
+<ew-language date="2015/12/13" version="12.0.0" id="en" name="English" desc="English" author="e.World Technology Ltd.">
 	<locale>
 		<phrase id="locale" value=""/><!-- *** system locale for this language -->
 		<phrase id="use_system_locale" value="1"/><!-- *** change to "0" to disable system locale and use the following settings *** -->
@@ -438,18 +438,32 @@
 	<project><phrase id="footertext" value="&amp;copy;2015 e.World Technology Ltd. All rights reserved."/>
 <menu id="1"><phrase id="menutext" value="projects"/>
 </menu>
+<menu id="2"><phrase id="menutext" value="images"/>
+</menu>
 <table id="projects"><phrase id="tblcaption" value="projects"/>
 <field id="id"><phrase id="fldcaption" value="id"/>
 </field>
 <field id="title"><phrase id="fldcaption" value="title"/>
 </field>
-<field id="images"><phrase id="fldcaption" value="images"/>
+<field id="images"><phrase id="fldcaption" value="Main Image"/>
 </field>
 <field id="intro"><phrase id="fldcaption" value="intro"/>
 </field>
 <field id="full_intro"><phrase id="fldcaption" value="full intro"/>
 </field>
 <field id="details"><phrase id="fldcaption" value="details"/>
+</field>
+<field id="livelink"><phrase id="fldcaption" value="Live Link"/>
+</field>
+</table>
+<table id="images"><phrase id="tblcaption" value="images"/>
+<field id="image_id"><phrase id="fldcaption" value="image id"/>
+</field>
+<field id="p_id"><phrase id="fldcaption" value="Select Project"/>
+</field>
+<field id="image_name"><phrase id="fldcaption" value="Image "/>
+</field>
+<field id="image_detail"><phrase id="fldcaption" value="Image Detail"/>
 </field>
 </table>
 </project>

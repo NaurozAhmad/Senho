@@ -251,6 +251,8 @@ class cdefault {
 		if (!$Security->IsLoggedIn()) $Security->AutoLogin();
 		if ($Security->IsLoggedIn())
 		$this->Page_Terminate("projectslist.php"); // Exit and go to default page
+		if ($Security->IsLoggedIn())
+			$this->Page_Terminate("imageslist.php");
 		if ($Security->IsLoggedIn()) {
 			$this->setFailureMessage($Language->Phrase("NoPermission") . "<br><br><a href=\"logout.php\">" . $Language->Phrase("BackToLogin") . "</a>");
 		} else {
