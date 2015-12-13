@@ -6,6 +6,7 @@ ob_start(); // Turn on output buffering
 <?php include_once ((EW_USE_ADODB) ? "adodb5/adodb.inc.php" : "ewmysql12.php") ?>
 <?php include_once "phpfn12.php" ?>
 <?php include_once "imagesinfo.php" ?>
+<?php include_once "projectsinfo.php" ?>
 <?php include_once "userfn12.php" ?>
 <?php
 
@@ -84,6 +85,9 @@ class cimages_image_name_blobview extends cimages {
 			$GLOBALS["images"] = &$this;
 			$GLOBALS["Table"] = &$GLOBALS["images"];
 		}
+
+		// Table object (projects)
+		if (!isset($GLOBALS['projects'])) $GLOBALS['projects'] = new cprojects();
 
 		// Page ID
 		if (!defined("EW_PAGE_ID"))

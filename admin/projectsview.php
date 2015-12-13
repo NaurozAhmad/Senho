@@ -6,6 +6,7 @@ ob_start(); // Turn on output buffering
 <?php include_once ((EW_USE_ADODB) ? "adodb5/adodb.inc.php" : "ewmysql12.php") ?>
 <?php include_once "phpfn12.php" ?>
 <?php include_once "projectsinfo.php" ?>
+<?php include_once "imagesgridcls.php" ?>
 <?php include_once "userfn12.php" ?>
 <?php
 
@@ -425,6 +426,9 @@ class cprojects_view extends cprojects {
 		$this->RowType = EW_ROWTYPE_VIEW;
 		$this->ResetAttrs();
 		$this->RenderRow();
+
+		// Set up detail parameters
+		$this->SetUpDetailParms();
 	}
 
 	// Set up other options
@@ -452,6 +456,81 @@ class cprojects_view extends cprojects {
 		$item = &$option->Add("delete");
 		$item->Body = "<a class=\"ewAction ewDelete\" title=\"" . ew_HtmlTitle($Language->Phrase("ViewPageDeleteLink")) . "\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("ViewPageDeleteLink")) . "\" href=\"" . ew_HtmlEncode($this->DeleteUrl) . "\">" . $Language->Phrase("ViewPageDeleteLink") . "</a>";
 		$item->Visible = ($this->DeleteUrl <> "" && $Security->IsLoggedIn());
+		$option = &$options["detail"];
+		$DetailTableLink = "";
+		$DetailViewTblVar = "";
+		$DetailCopyTblVar = "";
+		$DetailEditTblVar = "";
+
+		// "detail_images"
+		$item = &$option->Add("detail_images");
+		$body = $Language->Phrase("ViewPageDetailLink") . $Language->TablePhrase("images", "TblCaption");
+		$body = "<a class=\"btn btn-default btn-sm ewRowLink ewDetail\" data-action=\"list\" href=\"" . ew_HtmlEncode("imageslist.php?" . EW_TABLE_SHOW_MASTER . "=projects&fk_id=" . urlencode(strval($this->id->CurrentValue)) . "") . "\">" . $body . "</a>";
+		$links = "";
+		if ($GLOBALS["images_grid"] && $GLOBALS["images_grid"]->DetailView && $Security->IsLoggedIn() && $Security->IsLoggedIn()) {
+			$links .= "<li><a class=\"ewRowLink ewDetailView\" data-action=\"view\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailViewLink")) . "\" href=\"" . ew_HtmlEncode($this->GetViewUrl(EW_TABLE_SHOW_DETAIL . "=images")) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailViewLink")) . "</a></li>";
+			if ($DetailViewTblVar <> "") $DetailViewTblVar .= ",";
+			$DetailViewTblVar .= "images";
+		}
+		if ($GLOBALS["images_grid"] && $GLOBALS["images_grid"]->DetailEdit && $Security->IsLoggedIn() && $Security->IsLoggedIn()) {
+			$links .= "<li><a class=\"ewRowLink ewDetailEdit\" data-action=\"edit\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailEditLink")) . "\" href=\"" . ew_HtmlEncode($this->GetEditUrl(EW_TABLE_SHOW_DETAIL . "=images")) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailEditLink")) . "</a></li>";
+			if ($DetailEditTblVar <> "") $DetailEditTblVar .= ",";
+			$DetailEditTblVar .= "images";
+		}
+		if ($GLOBALS["images_grid"] && $GLOBALS["images_grid"]->DetailAdd && $Security->IsLoggedIn() && $Security->IsLoggedIn()) {
+			$links .= "<li><a class=\"ewRowLink ewDetailCopy\" data-action=\"add\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailCopyLink")) . "\" href=\"" . ew_HtmlEncode($this->GetCopyUrl(EW_TABLE_SHOW_DETAIL . "=images")) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailCopyLink")) . "</a></li>";
+			if ($DetailCopyTblVar <> "") $DetailCopyTblVar .= ",";
+			$DetailCopyTblVar .= "images";
+		}
+		if ($links <> "") {
+			$body .= "<button class=\"dropdown-toggle btn btn-default btn-sm ewDetail\" data-toggle=\"dropdown\"><b class=\"caret\"></b></button>";
+			$body .= "<ul class=\"dropdown-menu\">". $links . "</ul>";
+		}
+		$body = "<div class=\"btn-group\">" . $body . "</div>";
+		$item->Body = $body;
+		$item->Visible = $Security->IsLoggedIn();
+		if ($item->Visible) {
+			if ($DetailTableLink <> "") $DetailTableLink .= ",";
+			$DetailTableLink .= "images";
+		}
+		if ($this->ShowMultipleDetails) $item->Visible = FALSE;
+
+		// Multiple details
+		if ($this->ShowMultipleDetails) {
+			$body = $Language->Phrase("MultipleMasterDetails");
+			$body = "<div class=\"btn-group\">";
+			$links = "";
+			if ($DetailViewTblVar <> "") {
+				$links .= "<li><a class=\"ewRowLink ewDetailView\" data-action=\"view\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailViewLink")) . "\" href=\"" . ew_HtmlEncode($this->GetViewUrl(EW_TABLE_SHOW_DETAIL . "=" . $DetailViewTblVar)) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailViewLink")) . "</a></li>";
+			}
+			if ($DetailEditTblVar <> "") {
+				$links .= "<li><a class=\"ewRowLink ewDetailEdit\" data-action=\"edit\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailEditLink")) . "\" href=\"" . ew_HtmlEncode($this->GetEditUrl(EW_TABLE_SHOW_DETAIL . "=" . $DetailEditTblVar)) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailEditLink")) . "</a></li>";
+			}
+			if ($DetailCopyTblVar <> "") {
+				$links .= "<li><a class=\"ewRowLink ewDetailCopy\" data-action=\"add\" data-caption=\"" . ew_HtmlTitle($Language->Phrase("MasterDetailCopyLink")) . "\" href=\"" . ew_HtmlEncode($this->GetCopyUrl(EW_TABLE_SHOW_DETAIL . "=" . $DetailCopyTblVar)) . "\">" . ew_HtmlImageAndText($Language->Phrase("MasterDetailCopyLink")) . "</a></li>";
+			}
+			if ($links <> "") {
+				$body .= "<button class=\"dropdown-toggle btn btn-default btn-sm ewMasterDetail\" title=\"" . ew_HtmlTitle($Language->Phrase("MultipleMasterDetails")) . "\" data-toggle=\"dropdown\">" . $Language->Phrase("MultipleMasterDetails") . "<b class=\"caret\"></b></button>";
+				$body .= "<ul class=\"dropdown-menu ewMenu\">". $links . "</ul>";
+			}
+			$body .= "</div>";
+
+			// Multiple details
+			$oListOpt = &$option->Add("details");
+			$oListOpt->Body = $body;
+		}
+
+		// Set up detail default
+		$option = &$options["detail"];
+		$options["detail"]->DropDownButtonPhrase = $Language->Phrase("ButtonDetails");
+		$option->UseImageAndText = TRUE;
+		$ar = explode(",", $DetailTableLink);
+		$cnt = count($ar);
+		$option->UseDropDownButton = ($cnt > 1);
+		$option->UseButtonGroup = TRUE;
+		$item = &$option->Add($option->GroupOptionName);
+		$item->Body = "";
+		$item->Visible = FALSE;
 
 		// Set up action default
 		$option = &$options["action"];
@@ -651,6 +730,35 @@ class cprojects_view extends cprojects {
 		// Call Row Rendered event
 		if ($this->RowType <> EW_ROWTYPE_AGGREGATEINIT)
 			$this->Row_Rendered();
+	}
+
+	// Set up detail parms based on QueryString
+	function SetUpDetailParms() {
+
+		// Get the keys for master table
+		if (isset($_GET[EW_TABLE_SHOW_DETAIL])) {
+			$sDetailTblVar = $_GET[EW_TABLE_SHOW_DETAIL];
+			$this->setCurrentDetailTable($sDetailTblVar);
+		} else {
+			$sDetailTblVar = $this->getCurrentDetailTable();
+		}
+		if ($sDetailTblVar <> "") {
+			$DetailTblVar = explode(",", $sDetailTblVar);
+			if (in_array("images", $DetailTblVar)) {
+				if (!isset($GLOBALS["images_grid"]))
+					$GLOBALS["images_grid"] = new cimages_grid;
+				if ($GLOBALS["images_grid"]->DetailView) {
+					$GLOBALS["images_grid"]->CurrentMode = "view";
+
+					// Save current master table to detail table
+					$GLOBALS["images_grid"]->setCurrentMasterTable($this->TableVar);
+					$GLOBALS["images_grid"]->setStartRecordNumber(1);
+					$GLOBALS["images_grid"]->p_id->FldIsDetailKey = TRUE;
+					$GLOBALS["images_grid"]->p_id->CurrentValue = $this->id->CurrentValue;
+					$GLOBALS["images_grid"]->p_id->setSessionValue($GLOBALS["images_grid"]->p_id->CurrentValue);
+				}
+			}
+		}
 	}
 
 	// Set up Breadcrumb
@@ -897,6 +1005,14 @@ $projects_view->ShowMessage();
 	</tr>
 <?php } ?>
 </table>
+<?php
+	if (in_array("images", explode(",", $projects->getCurrentDetailTable())) && $images->DetailView) {
+?>
+<?php if ($projects->getCurrentDetailTable() <> "") { ?>
+<h4 class="ewDetailCaption"><?php echo $Language->TablePhrase("images", "TblCaption") ?></h4>
+<?php } ?>
+<?php include_once "imagesgrid.php" ?>
+<?php } ?>
 </form>
 <script type="text/javascript">
 fprojectsview.Init();

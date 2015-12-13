@@ -92,6 +92,30 @@ class cprojects extends cTable {
 		}
 	}
 
+	// Current detail table name
+	function getCurrentDetailTable() {
+		return @$_SESSION[EW_PROJECT_NAME . "_" . $this->TableVar . "_" . EW_TABLE_DETAIL_TABLE];
+	}
+
+	function setCurrentDetailTable($v) {
+		$_SESSION[EW_PROJECT_NAME . "_" . $this->TableVar . "_" . EW_TABLE_DETAIL_TABLE] = $v;
+	}
+
+	// Get detail url
+	function GetDetailUrl() {
+
+		// Detail url
+		$sDetailUrl = "";
+		if ($this->getCurrentDetailTable() == "images") {
+			$sDetailUrl = $GLOBALS["images"]->GetListUrl() . "?showmaster=" . $this->TableVar;
+			$sDetailUrl .= "&fk_id=" . urlencode($this->id->CurrentValue);
+		}
+		if ($sDetailUrl == "") {
+			$sDetailUrl = "projectslist.php";
+		}
+		return $sDetailUrl;
+	}
+
 	// Table level SQL
 	var $_SqlFrom = "";
 
@@ -422,7 +446,10 @@ class cprojects extends cTable {
 
 	// Edit URL
 	function GetEditUrl($parm = "") {
-		return $this->KeyUrl("projectsedit.php", $this->UrlParm($parm));
+		if ($parm <> "")
+			return $this->KeyUrl("projectsedit.php", $this->UrlParm($parm));
+		else
+			return $this->KeyUrl("projectsedit.php", $this->UrlParm(EW_TABLE_SHOW_DETAIL . "="));
 	}
 
 	// Inline edit URL
@@ -432,7 +459,10 @@ class cprojects extends cTable {
 
 	// Copy URL
 	function GetCopyUrl($parm = "") {
-		return $this->KeyUrl("projectsadd.php", $this->UrlParm($parm));
+		if ($parm <> "")
+			return $this->KeyUrl("projectsadd.php", $this->UrlParm($parm));
+		else
+			return $this->KeyUrl("projectsadd.php", $this->UrlParm(EW_TABLE_SHOW_DETAIL . "="));
 	}
 
 	// Inline copy URL
