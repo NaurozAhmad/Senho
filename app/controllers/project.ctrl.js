@@ -7,5 +7,11 @@ senhoApp.controller('ProjectCtrl', function ($log, $scope, apiService, $statePar
 			$scope.project = payload.data;
 			console.log($scope.project);
 		});
+	});
+	$scope.$parent.imagesPromise.then(function () {
+		$scope.imagePromise = apiService.getProjectImages(id);
+		$scope.imagePromise.then(function (payload) {
+			$scope.images = payload.data;
+		})
 	})
 });

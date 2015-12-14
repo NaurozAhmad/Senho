@@ -2,6 +2,12 @@ senhoApp.controller('MainCtrl', function ($log, $scope, apiService, $sce) {
 	$log.log('Hello from your Controller: MainCtrl in module main:. This is your controller:', this);
 	$scope.promise = apiService.getProjects();
 	$scope.promise.then(function (data) {
+		$scope.imagesPromise = apiService.getImages();
+		$scope.imagesPromise.then(function (data) {
+			$scope.images = data.data;
+			console.log('Got images from server: ' + $scope.images.length);
+			apiService.setImages($scope.images);
+		});
 		$scope.projects = data.data;
 		console.log('Length is: ' + $scope.projects.length);
 		apiService.setProjects($scope.projects);
