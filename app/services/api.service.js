@@ -3,11 +3,11 @@ senhoApp.factory('apiService', function ($http, $q, $log, $window) {
 	return {
 		setProjects: function (data) {
 			projects = data;
-			for (var i = 0; i < projects.length; i++) {
+			/*for (var i = 0; i < projects.length; i++) {
 				var images = projects[i].images.split(',');
 				projects[i].images = JSON.parse(JSON.stringify(images));
 				projects[i].images = projects[i].images.sort();
-			}
+			}*/
 		},
 		getProjects: function (userId) {
 			var deferred = $q.defer();

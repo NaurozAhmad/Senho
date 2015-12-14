@@ -10,9 +10,10 @@
             </div>
         </div>
     </div>
+    <pre>{{projects | json}}</pre>
     <div class="container-fluid">
         <div class="row">
-            <div ng-repeat="item in projects" class="col-xs-12 col-sm-6 col-md-4 col-lg-4 featured-item element-img wow fadeInUp" data-wow-delay="0.2s" style="background-image:url(img/home/featured-1.jpg)">
+            <div ng-repeat="item in projects" class="col-xs-12 col-sm-6 col-md-4 col-lg-4 featured-item element-img wow fadeInUp" data-wow-delay="0.2s" style="background-image:url('admin/uploads/{{item.images[0]}}')">
                 <a ui-sref="main.projects({projectId: item.id})" title="View Work" class="meta">
                     <span class="title">{{item.title}}</span>
                     <hr class="byline-accent">
