@@ -45,8 +45,8 @@
     <link href="css/custom.css" rel="stylesheet" type="text/css">
     <script src="js/plugins/jquery/dist/jquery.min.js"></script>
     <script src="js/plugins/angular/angular.min.js"></script>
-    <script src="js/plugins/angular-ui-router.min.js"></script>
-    <script src="js/plugins/angular-sanitize.min.js"></script>
+    <script src="js/plugins/angular/angular-ui-router/build/angular-ui-router.min.js"></script>
+    <script src="js/plugins/angular/angular-sanitize/angular-sanitize.min.js"></script>
     <script src="app/app.js"></script>
     <!-- Load these in the <head> for quicker IE8+ load times -->
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
