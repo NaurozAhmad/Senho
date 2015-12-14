@@ -1,4 +1,4 @@
-var senhoApp = angular.module('senhoApp', ['ngSanitize']);
+var senhoApp = angular.module('senhoApp', ['ui.router', 'ngSanitize']);
 
 senhoApp.config(function ($urlRouterProvider, $stateProvider) {
 	$urlRouterProvider.otherwise('/main/home');
