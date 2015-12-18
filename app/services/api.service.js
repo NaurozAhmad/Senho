@@ -12,7 +12,7 @@ senhoApp.factory('apiService', function ($http, $q, $log, $window) {
 		},
 		setImages: function (data) {
 			images = data;
-		}
+		},
 		getProjects: function () {
 			var deferred = $q.defer();
 			var url = 'http://senhoit.com/get-data.php';
@@ -42,7 +42,7 @@ senhoApp.factory('apiService', function ($http, $q, $log, $window) {
 					$log.error(msg, code);
 				});
 			return deferred.promise;
-		}
+		},
 		getProject: function (id) {
 			var deferred = $q.defer();
 			for (var i = 0; i < projects.length; i++) {
