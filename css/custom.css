@@ -207,6 +207,8 @@ ul.photoblock li,
 
 .lb-container {
     padding: 0;
+    width: 70%;
+    margin: 0 auto;
 }
 
 #lightbox img {
