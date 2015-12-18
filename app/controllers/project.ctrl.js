@@ -12,6 +12,7 @@ senhoApp.controller('ProjectCtrl', function ($log, $scope, apiService, $statePar
 		$scope.imagePromise = apiService.getProjectImages(id);
 		$scope.imagePromise.then(function (payload) {
 			$scope.images = payload.data;
+			console.log('scope images: ' + $scope.images.length);
 		})
 	})
 });
