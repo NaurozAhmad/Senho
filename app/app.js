@@ -34,16 +34,20 @@ senhoApp.config(function ($urlRouterProvider, $stateProvider) {
 
 senhoApp.factory('apiService', function ($http, $q, $log, $window) {
 	var projects;
+	var images;
 	return {
 		setProjects: function (data) {
 			projects = data;
-			for (var i = 0; i < projects.length; i++) {
+			/*for (var i = 0; i < projects.length; i++) {
 				var images = projects[i].images.split(',');
 				projects[i].images = JSON.parse(JSON.stringify(images));
 				projects[i].images = projects[i].images.sort();
-			}
+			}*/
 		},
-		getProjects: function (userId) {
+		setImages: function (data) {
+			images = data;
+		}
+		getProjects: function () {
 			var deferred = $q.defer();
 			var url = 'http://senhoit.com/get-data.php';
 			$http.get(url)
@@ -58,6 +62,21 @@ senhoApp.factory('apiService', function ($http, $q, $log, $window) {
 				});
 			return deferred.promise;
 		},
+		getImages: function () {
+			var deferred = $q.defer();
+			var url = 'http://senhoit.com/get-images.php';
+			$http.get(url)
+				.success(function (response) {
+					deferred.resolve({
+						data: response
+					});
+				})
+				.error(function (msg, code) {
+					deferred.reject(msg);
+					$log.error(msg, code);
+				});
+			return deferred.promise;
+		}
 		getProject: function (id) {
 			var deferred = $q.defer();
 			for (var i = 0; i < projects.length; i++) {
@@ -65,6 +84,22 @@ senhoApp.factory('apiService', function ($http, $q, $log, $window) {
 					console.log('Found');
 					deferred.resolve({
 						data: projects[i]
+					});
+				}
+			}
+			return deferred.promise;
+		},
+		getProjectImages: function (id) {
+			var deferred = $q.defer();
+			var projectImages = [];
+			for (var i = 0; i < images.length; i++) {
+				if (id === images[i].p_id) {
+					projectImages.push(images[i]);
+				}
+				if (i === images.length - 1) {
+					console.log('Found images: ' + images.length);
+					deferred.resolve({
+						data: projectImages
 					});
 				}
 			}
@@ -82,6 +117,12 @@ senhoApp.controller('MainCtrl', function ($log, $scope, apiService, $sce) {
 	$log.log('Hello from your Controller: MainCtrl in module main:. This is your controller:', this);
 	$scope.promise = apiService.getProjects();
 	$scope.promise.then(function (data) {
+		$scope.imagesPromise = apiService.getImages();
+		$scope.imagesPromise.then(function (data) {
+			$scope.images = data.data;
+			console.log('Got images from server: ' + $scope.images.length);
+			apiService.setImages($scope.images);
+		});
 		$scope.projects = data.data;
 		console.log('Length is: ' + $scope.projects.length);
 		apiService.setProjects($scope.projects);
@@ -115,5 +156,11 @@ senhoApp.controller('ProjectCtrl', function ($log, $scope, apiService, $statePar
 			$scope.project = payload.data;
 			console.log($scope.project);
 		});
+	});
+	$scope.$parent.imagesPromise.then(function () {
+		$scope.imagePromise = apiService.getProjectImages(id);
+		$scope.imagePromise.then(function (payload) {
+			$scope.images = payload.data;
+		})
 	})
 });
