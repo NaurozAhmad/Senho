@@ -177,13 +177,16 @@ senhoApp.controller('ProjectCtrl', function ($log, $scope, apiService, $statePar
 			})
 		});
 	} else {
-		$scope.$parent.imagesPromise = apiService.getImages();
-		$scope.$parent.imagesPromise.then(function () {
-			$scope.imagePromise = apiService.getProjectImages(id);
-			$scope.imagePromise.then(function (payload) {
-				$scope.images = payload.data;
-				console.log('scope images: ' + $scope.images.length);
-			})
+		$scope.$parent.promise.then(function () {
+			$scope.$parent.imagesPromise = apiService.getImages();
+
+			$scope.$parent.imagesPromise.then(function () {
+				$scope.imagePromise = apiService.getProjectImages(id);
+				$scope.imagePromise.then(function (payload) {
+					$scope.images = payload.data;
+					console.log('scope images: ' + $scope.images.length);
+				})
+			});
 		});
 	}
 });
