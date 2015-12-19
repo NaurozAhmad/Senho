@@ -57,6 +57,12 @@ button.navbar-toggle .icon-bar {
     flex-wrap: wrap;
 }
 
+.form-control:focus {
+    border-color: #FF4D4D;
+    outline: 0px none;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset, 0px 0px 8px #FF4D4D;
+}
+
 #mailinglist #mc-email.form-control {
     padding: 0 13px;
 }
@@ -72,10 +78,6 @@ button.navbar-toggle .icon-bar {
     border: 1px solid #999;
     margin-bottom: 15px;
     resize: none;
-}
-
-#mailinglist textarea:focus {
-    border-color: #FF4D4D;
 }
 
 .pace .pace-progress {

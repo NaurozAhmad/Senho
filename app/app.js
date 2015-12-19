@@ -133,15 +133,21 @@ senhoApp.controller('MainCtrl', function ($log, $scope, apiService, $sce) {
 	$scope.renderHTML = function (data) {
 		return $sce.trustAsHtml(data);
 	};
+	$scope.email = {
+		email: '',
+		message: ''
+	};
 	$scope.sendMessage = function () {
+		console.log('sending message "' + $scope.email.message + '"" from ' + $scope.email.email);
 		$.ajax({
 			url: 'includes/contact-form/phpmailer.php',
 			type: 'POST',
 			data: {
-				email: $('#name').val(),
-				message: $('#message').val()
+				email: $scope.email.email,
+				message: $scope.email.message
 			}
 		}).done(function (data) {
+			console.log(data);
 			alert(JSON.stringify(data));
 		});
 	}
