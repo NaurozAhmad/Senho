@@ -70,6 +70,22 @@ senhoApp.factory('apiService', function ($http, $q, $log, $window) {
 				}
 			}
 			return deferred.promise;
+		},
+		sendEmail: function (data) {
+			var deferred = $q.defer();
+			$.ajax({
+				url: 'includes/contact-form/phpmailer.php',
+				type: 'POST',
+				data: {
+					email: data.email,
+					message: data.message
+				}
+			}).done(function (data) {
+				deferred.resolve({
+					data: data
+				});
+			});
+			return deferred.promise;
 		}
 	}
 })

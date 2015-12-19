@@ -104,13 +104,57 @@ senhoApp.factory('apiService', function ($http, $q, $log, $window) {
 				}
 			}
 			return deferred.promise;
+		},
+		sendEmail: function (data) {
+			var deferred = $q.defer();
+			$.ajax({
+				url: 'includes/contact-form/phpmailer.php',
+				type: 'POST',
+				data: {
+					email: data.email,
+					message: data.message
+				}
+			}).done(function (data) {
+				deferred.resolve({
+					data: data
+				});
+			});
+			return deferred.promise;
 		}
 	}
 })
 
-senhoApp.controller('HomeCtrl', function ($log, $scope) {
+senhoApp.controller('HomeCtrl', function ($log, $scope, apiService) {
 	$log.log('Hello from your Controller: HomeCtrl in module main:. This is your controller:', this);
-
+	$scope.sending = false;
+	$scope.validation = '';
+	$scope.email = {
+		email: '',
+		message: ''
+	};
+	$scope.sendMessage = function () {
+		console.log('sending message "' + $scope.email.message + '"" from ' + $scope.email.email);
+		if ($scope.email.email === '' || $scope.email.message === '') {
+			$scope.validation = 'Please fill in your email and your message.';
+			swal('', 'Please fill in your email and message.', 'info');
+			console.log($scope.validation);
+		} else {
+			$scope.validation = '';
+			$scope.sending = true;
+			$scope.promise = apiService.sendEmail($scope.email);
+			$scope.promise.then(function (data) {
+				if (data.data === "1") {
+					swal('Thank you!', 'We\'ll get back to you soon.', 'success');
+					$scope.email.email = '';
+					$scope.email.message = '';
+				} else {
+					swal('Sorry...', 'Something went wrong with the server. Please try again.', 'error');
+				}
+				console.log(data.data);
+				$scope.sending = false;
+			})
+		};
+	}
 });
 
 senhoApp.controller('MainCtrl', function ($log, $scope, apiService, $sce) {
@@ -133,24 +177,6 @@ senhoApp.controller('MainCtrl', function ($log, $scope, apiService, $sce) {
 	$scope.renderHTML = function (data) {
 		return $sce.trustAsHtml(data);
 	};
-	$scope.email = {
-		email: '',
-		message: ''
-	};
-	$scope.sendMessage = function () {
-		console.log('sending message "' + $scope.email.message + '"" from ' + $scope.email.email);
-		$.ajax({
-			url: 'includes/contact-form/phpmailer.php',
-			type: 'POST',
-			data: {
-				email: $scope.email.email,
-				message: $scope.email.message
-			}
-		}).done(function (data) {
-			console.log(data);
-			alert(JSON.stringify(data));
-		});
-	}
 });
 
 senhoApp.controller('ProjectCtrl', function ($log, $scope, apiService, $stateParams, $q) {

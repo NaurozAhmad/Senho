@@ -67,15 +67,30 @@ button.navbar-toggle .icon-bar {
     padding: 0 13px;
 }
 
+#mailinglist label.status {
+    margin: 26px auto 2px;
+    color: rgb(255, 77, 77);
+    max-height: 50px;
+    min-height: 20px;
+    line-height: 20px;
+}
+
+#mailinglist textarea,
+#mailinglist input {
+    font-style: normal;
+    color: rgb(102, 102, 102);
+    border: 1px solid #999;
+}
+
 #mailinglist #mc-email.form-control:focus {
     border-color: #FF4D4D;
 }
 
 #mailinglist textarea {
+    margin: 5px 0;
     width: 100%;
     box-shadow: none;
     border-radius: 3px;
-    border: 1px solid #999;
     margin-bottom: 15px;
     resize: none;
 }
@@ -85,11 +100,16 @@ button.navbar-toggle .icon-bar {
 }
 
 #mailinglist button.signup:hover,
+#mailinglist a.signup:hover,
 .custom-button:hover {
     background-color: #FF4D4D;
 }
 
-#mailinglist button.signup {
+#mailinglist button.signup,
+#mailinglist a.signup {
+    min-height: 46px;
+    width: 100%;
+    background-color: rgb(21, 21, 21);
     float: none;
 }
 
