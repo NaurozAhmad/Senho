@@ -299,3 +299,18 @@ ul.photoblock li,
     opacity: 1;
     background-repeat: no-repeat !important;
 }
+
+#hero .element-img {
+    background: url(../img/senho/parallax.jpg) no-repeat center center fixed;
+}
+
+@media only screen and (orientation: landscape) {
+    #hero .element-img {
+        background-size: 100% auto;
+    }
+}
+@media only screen and (orientation: portrait) {
+    #hero .element-img {
+        background-size: auto 100%;
+    }
+}
